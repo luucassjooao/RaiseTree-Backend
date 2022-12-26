@@ -6,7 +6,8 @@ import app from './app';
 
   try {
     await prisma.$connect();
-    const { SERVER_PORT, NODE_ENV, URL_SERVER_IS_RUNNING } = process.env;
+    const { NODE_ENV, URL_SERVER_IS_RUNNING } = process.env;
+    const SERVER_PORT = process.env.SERVER_PORT || 3245;
 
     app.listen(SERVER_PORT, () => {
       if (NODE_ENV === 'development') {
