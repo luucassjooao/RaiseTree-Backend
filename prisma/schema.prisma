@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id         String       @id @unique @default(uuid())
+  name       String       @unique
+  classrooms String[]
+  affiliates InfosUser[]
+  StaticUser StaticUser[]
+}
+
+model StaticUser {
+  id             String        @id @unique @default(uuid())
+  name           String
+  code           String        @unique @default(uuid())
+  classroom      String[]
+  type           TypeUser
+  Organization   Organization? @relation(fields: [organizationId], references: [id])
+  organizationId String
+
+  createdAt DateTime @default(now())
+}
+
+model InfosUser {
+  id                 String        @id @unique @default(uuid())
+  Organization       Organization? @relation(fields: [organizationId], references: [id])
+  name               String
+  code               String        @unique
+  email              String        @unique
+  password           String
+  type               TypeUser
+  type_model_student Student?
+  type_model_teacher Teacher?
+  drafts             Draft[]
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now())
+  organizationId String?
+}
+
+model Student {
+  id               String             @id @unique @default(uuid())
+  classroom        String
+  current_points   Int
+  points           Int[]
+  reply_activities AnsweredActivity[]
+  user             InfosUser          @relation(fields: [userId], references: [id])
+  userId           String             @unique
+}
+
+model Teacher {
+  id         String     @id @unique @default(uuid())
+  classrooms String[]
+  subject    Subject    @relation(fields: [subjectId], references: [id])
+  subjectId  String
+  activities Activity[]
+  user       InfosUser  @relation(fields: [userId], references: [id])
+  userId     String     @unique
+}
+
+model Activity {
+  id                  String             @id @unique @default(uuid())
+  title               String
+  description         String
+  activity            String
+  classrooms          String[]
+  subject             Subject            @relation(fields: [subjectId], references: [id])
+  answered_activities AnsweredActivity[]
+  type                TypeActivity       @default(Atividade)
+  previous_points     Int                @default(0)
+  dateExpiration      DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  Teacher   Teacher? @relation(fields: [teacherId], references: [id])
+  teacherId String?
+  subjectId String
+}
+
+model Subject {
+  id       String     @id @unique @default(uuid())
+  name     String
+  Teacher  Teacher[]
+  Activity Activity[]
+}
+
+model AnsweredActivity {
+  id              String @id @unique @default(uuid())
+  note_of_teacher String @default("")
+  answer          String
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @default(now())
+  Student    Student?  @relation(fields: [studentId], references: [id])
+  studentId  String?
+  Activity   Activity? @relation(fields: [activityId], references: [id])
+  activityId String?
+}
+
+model Draft {
+  id          String @id @unique @default(uuid())
+  title       String
+  description String
+  draft       String
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @default(now())
+  InfosUser   InfosUser? @relation(fields: [infosUserId], references: [id])
+  infosUserId String?
+}
+
+enum TypeUser {
+  teacher
+  student
+  admin
+}
+
+enum TypeActivity {
+  Atividade
+  Tarefa
+  Trabalho
+}
