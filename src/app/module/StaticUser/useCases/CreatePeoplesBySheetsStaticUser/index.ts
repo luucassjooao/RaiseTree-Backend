@@ -1,6 +1,5 @@
 import { randomUUID } from 'crypto';
 import { GoogleSpreadsheet } from 'google-spreadsheet';
-import credentials from '../../../../../../credentialsGoogleSheets.json';
 import AppError from '../../../../error';
 import UserRepository from '../../../User/repositories/implementation/UserRepository';
 import StaticUserRepository from '../../repositories/implementation/StaticUserRepository';
@@ -15,8 +14,8 @@ export default async function CreatePeoplesBySheetsStaticUser(
   const doc = new GoogleSpreadsheet(sheetId);
 
   await doc.useServiceAccountAuth({
-    client_email: credentials.client_email,
-    private_key: credentials.private_key,
+    client_email: process.env.CLIENT_EMAIL_GOOGLE_SHEETS as string,
+    private_key: process.env.PRIVATE_KEY_GOOGLE_SHEETS as string,
   });
 
   await doc.loadInfo();
