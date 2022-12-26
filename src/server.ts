@@ -7,11 +7,11 @@ import app from './app';
   try {
     await prisma.$connect();
     const { NODE_ENV, URL_SERVER_IS_RUNNING } = process.env;
-    const SERVER_PORT = process.env.SERVER_PORT || 3245;
+    const PORT = process.env.PORT || 3000;
 
-    app.listen(SERVER_PORT, () => {
+    app.listen(PORT, () => {
       if (NODE_ENV === 'development') {
-        console.log(`server is running in port: http://localhost:${SERVER_PORT}`);
+        console.log(`server is running in port: http://localhost:${PORT}`);
       } else {
         console.log(`server is running on ${URL_SERVER_IS_RUNNING}`);
       }
