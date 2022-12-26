@@ -5,8 +5,9 @@
   "license": "MIT",
   "scripts": {
     "dev": "tsnd --transpile-only --respawn --exit-child --ignore-watch node_modules src/server.ts",
-    "build": "rimraf ./dist && tsc",
-    "start": "cross-env NODE_ENV=production && node dist/src/server.js"
+    "build": "yarn migrate:deploy && tsc",
+    "start": "cross-env NODE_ENV=production && node dist/src/server.js",
+    "migrate:deploy": "prisma migrate deploy"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
