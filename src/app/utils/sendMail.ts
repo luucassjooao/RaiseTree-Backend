@@ -37,11 +37,11 @@ export default async function sendMail(to: string, url: string, txt: string) {
     const mailOptions = {
       from: SENDER_MAIL,
       to,
-      subject: 'Project School',
+      subject: 'Rasie Tree',
       html: `
-      <div style="display: grid; max-width: 700px; margin: auto; border: 8px solid #001F68; padding: 50px 20px; font-size: 110%;">
-        <h2 style="text-align: center; text-transform: uppercase; color: #001F68;">O nome da escola aqui</h2>
-        <p style="text-align: center; font-size: 20px;">Alguma descição aq</p>
+      <div style="display: grid; max-width: 600px; margin: auto; border: 8px solid #560bad; padding: 50px 20px; font-size: 110%;">
+        <h2 style="text-align: center; text-transform: uppercase; color: #240046;">Raise Tree</h2>
+        <p style="text-align: center; font-size: 20px;">Agradecemos sinceramente por escolher o RT para atender às suas necessidades. Estamos comprometidos em fornecer um produto de alta qualidade e um atendimento excepcional ao cliente. Se você tiver alguma dúvida ou precisar de ajuda, não hesite em entrar em contato conosco. Obrigado por confiar em nós.</p>
         <a href=${url} style="background: rgb(189, 189, 189); text-align: center; font-size: 20px; padding: 10px 20px; margin: 10px auto;">${txt}</a>
         <p>Se o botão não funcionar por qualquer razão, click nesse link!</p>
         <div><a href=${url}>${url}</a></div>

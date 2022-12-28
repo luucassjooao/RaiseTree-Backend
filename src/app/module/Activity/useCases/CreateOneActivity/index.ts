@@ -29,7 +29,7 @@ export default async function CreateOneActivity({
     description,
     classrooms: !classrooms ? findTeacher?.classrooms as string[] : classrooms as string[],
     activity,
-    dateExpiration,
+    dateExpiration: new Date(dateExpiration),
     type,
     previous_points,
     subjectId,

@@ -31,8 +31,6 @@ class RegisterController {
       code,
     );
 
-    console.log(token);
-
     return response.status(200).json({ message: 'Verifique seu email para ativar sua conta!', token });
   }
 
