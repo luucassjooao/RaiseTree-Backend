@@ -21,7 +21,7 @@ export default async function ReplyAnswerOfStudent(
   const findAnswerById = await AnswerActivityRepository.findId(answerId);
   if (!findAnswerById) throw new AppError('Não foi possivel achar está resposta!', 404);
 
-  if (findAnswerById.answer !== '') throw new AppError('Você já respondeu está resposta deste aluno!');
+  if (findAnswerById.note_of_teacher !== '') throw new AppError('Você já respondeu este aluno(a)!');
 
   const updateAnswer = await AnswerActivityRepository
     .replyAnswerOfStudent(note_of_teacher, answerId);

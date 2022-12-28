@@ -29,6 +29,7 @@ class ActivityRepositories implements IActivityRepository {
             id: true,
             answer: true,
             createdAt: true,
+            note_of_teacher: true,
             Student: {
               select: {
                 id: true,
