@@ -36,6 +36,17 @@ class StudentRepository implements IStudentReposiory {
       },
     });
   }
+
+  getAllStudentsByClassroom(classroom: string): Promise<TStudent[]> {
+    return prismaStudent.findMany({
+      where: {
+        classroom,
+      },
+      include: {
+        user: true,
+      },
+    });
+  }
 }
 
 export default new StudentRepository();

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import CreateOneAnswerActivity from '../useCases/CreateOneAnswerActivity';
+import GetAllAnswerActivityOfStudent from '../useCases/GetAllAnswerActivityOfStudent';
 import ReplyAnswerOfStudent from '../useCases/ReplyAnswerOfStudent';
 
 class AnswerActivityController {
@@ -30,6 +31,17 @@ class AnswerActivityController {
     );
 
     return response.status(200).json({ message: 'Nota registrada!' });
+  }
+
+  async getAllAnswerActivityOfStudent(request: Request, response: Response): Promise<Response> {
+    const { studentId } = request.params;
+
+    const getActivity = await GetAllAnswerActivityOfStudent(
+      studentId,
+      request.user?.type_model_teacher?.id as string,
+    );
+
+    return response.status(200).json(getActivity);
   }
 }
 

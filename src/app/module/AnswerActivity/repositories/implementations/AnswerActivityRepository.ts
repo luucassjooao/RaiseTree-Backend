@@ -1,4 +1,5 @@
 /* eslint-disable camelcase */
+import { TActivity } from '../../../../prisma/activity';
 import { prismaAnsweredActivity, TAnsweredActivity } from '../../../../prisma/answeredActivity';
 import { IAnswerActivityRepository } from '../IAnswerActivityRepository';
 
@@ -44,6 +45,35 @@ class AnsweredActivityRepository implements IAnswerActivityRepository {
       },
       data: {
         note_of_teacher,
+      },
+    });
+  }
+
+  async getAllAnswerActivityOfStudent(
+    studentId: string,
+    teacherId: string,
+  ): Promise<(TAnsweredActivity & { Activity: TActivity | null; })[]> {
+    return prismaAnsweredActivity.findMany({
+      where: {
+        studentId,
+        Activity: {
+          teacherId,
+        },
+      },
+      include: {
+        Activity: {
+          include: {
+            Teacher: {
+              include: {
+                user: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
   }

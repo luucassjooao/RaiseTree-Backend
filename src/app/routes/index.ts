@@ -8,6 +8,7 @@ import newRegisterRouter from './register';
 import newStaticUser from './staticUser';
 import subjectRouter from './subject';
 import newUserRouter from './user';
+import studentRouter from './student';
 
 const routes = Router();
 
@@ -20,5 +21,6 @@ routes.use('/api', newActivityRouter);
 routes.use('/api', newAnswerActivityRouter);
 routes.use('/api', newDraftRouter);
 routes.use('/api', newUserRouter);
+routes.use('/api', studentRouter);
 
 export default routes;

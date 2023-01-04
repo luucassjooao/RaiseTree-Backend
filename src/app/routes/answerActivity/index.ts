@@ -15,5 +15,6 @@ newAnswerActivityRouter.patch(
   authTeacher,
   AnswerActivityController.replyAnswerOfStudent,
 );
+newAnswerActivityRouter.get('/getAllAnswerAcitivityOfStudent/:studentId', authTeacher, AnswerActivityController.getAllAnswerActivityOfStudent);
 
 export default newAnswerActivityRouter;

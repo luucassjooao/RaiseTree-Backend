@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+import { TActivity } from '../../../prisma/activity';
 import { TAnsweredActivity } from '../../../prisma/answeredActivity';
 
 export interface IAnswerActivityRepository {
@@ -9,4 +10,8 @@ export interface IAnswerActivityRepository {
     note_of_teacher: string,
     answerId: string,
   ): Promise<TAnsweredActivity | null>;
+  getAllAnswerActivityOfStudent(
+    studentId: string,
+    teacherId: string
+  ): Promise<(TAnsweredActivity & { Activity: TActivity | null; })[]>
 }
