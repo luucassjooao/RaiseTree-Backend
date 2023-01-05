@@ -9,6 +9,7 @@ import newStaticUser from './staticUser';
 import subjectRouter from './subject';
 import newUserRouter from './user';
 import studentRouter from './student';
+import redisRoutes from './redis/redis.routes';
 
 const routes = Router();
 
@@ -22,5 +23,7 @@ routes.use('/api', newAnswerActivityRouter);
 routes.use('/api', newDraftRouter);
 routes.use('/api', newUserRouter);
 routes.use('/api', studentRouter);
+
+routes.use('/api', redisRoutes);
 
 export default routes;

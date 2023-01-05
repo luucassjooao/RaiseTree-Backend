@@ -37,13 +37,30 @@ class StudentRepository implements IStudentReposiory {
     });
   }
 
-  getAllStudentsByClassroom(classroom: string): Promise<TStudent[]> {
+  async getAllStudentsByClassroom(classroom: string): Promise<{
+    id: string;
+    classroom: string;
+    current_points: number;
+    user: { id: string; name: string; };
+  }[]
+  > {
     return prismaStudent.findMany({
       where: {
         classroom,
       },
-      include: {
-        user: true,
+      select: {
+        classroom: true,
+        current_points: true,
+        id: true,
+        points: false,
+        reply_activities: false,
+        userId: false,
+        user: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
   }

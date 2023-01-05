@@ -6,5 +6,11 @@ export interface IStudentReposiory {
   findByFKUserId(id: string): Promise<TStudent | null>;
   addPointsInStudent(studentId: string, points: number): Promise<TStudent | null>;
   findId(id: string): Promise<TStudent | null>;
-  getAllStudentsByClassroom(classroom: string): Promise<TStudent[]>
+  getAllStudentsByClassroom(classroom: string): Promise<{
+    id: string;
+    classroom: string;
+    current_points: number;
+    user: { id: string; name: string; };
+  }[]
+  >
 }
