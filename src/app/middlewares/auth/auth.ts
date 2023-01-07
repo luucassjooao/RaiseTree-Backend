@@ -34,7 +34,7 @@ export default async function auth(
     const user = await UserRepository.findId(decoded.id);
     if (!user) throw new AppError('Usuario não existe!');
 
-    request.user = { ...user, password: '', code: '' };
+    request.user = { ...user };
 
     return next();
   } catch (error) {

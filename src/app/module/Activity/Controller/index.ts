@@ -1,5 +1,6 @@
 /* eslint-disable camelcase */
 import { Request, Response } from 'express';
+import DeleteDraftById from '../../Draft/useCases/DeleteDraftById';
 import CreateOneActivity from '../useCases/CreateOneActivity';
 import GetAllActivitiesOfHome from '../useCases/GetAllActivitiesOfHome';
 import GetUniqueActivityById from '../useCases/GetUniqueActivityById';
@@ -16,6 +17,8 @@ class ActivityController {
       previous_points,
     } = request.body;
 
+    const { idDraft } = request.params;
+
     await CreateOneActivity({
       title,
       description,
@@ -27,6 +30,8 @@ class ActivityController {
       subjectId: request.user?.type_model_teacher?.subjectId as string,
       teacherId: request.user?.type_model_teacher?.id as string,
     });
+
+    if (idDraft) await DeleteDraftById(idDraft, request.user?.id as string);
 
     return response.status(201).json({ message: 'Atividade Criada' });
   }

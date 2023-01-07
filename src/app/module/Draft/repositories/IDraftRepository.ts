@@ -10,4 +10,5 @@ export interface IDraftRepository {
   ): Promise<TDraft>;
   findAllDraftsByUserId(userId: string): Promise<TDraft[] | null>;
   findUniqueDraftById(id: string): Promise<TDraft | null>;
+  deleteDraftById(id: string): Promise<TDraft>;
 }

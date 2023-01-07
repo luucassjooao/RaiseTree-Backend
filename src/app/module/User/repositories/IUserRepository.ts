@@ -3,9 +3,12 @@ import { TUser } from '../../../prisma/infosUser';
 import { TStudent } from '../../../prisma/student';
 import { TTeacher } from '../../../prisma/teacher';
 
-export type TRequestUser = (TUser & {
+export type TRequestUser = (Pick<TUser, 'id' | 'name' | 'email' | 'organizationId' | 'type'> & {
   type_model_student: TStudent | null;
   type_model_teacher: TTeacher | null;
+  _count: {
+      drafts: number;
+  };
 }) | null;
 
 export interface IUserRepository {
@@ -15,5 +18,5 @@ export interface IUserRepository {
   findEmail(email: string): Promise<TUser | null>;
   findName(name: string): Promise<TUser | null>;
   findCode(code: string): Promise<TUser | null>;
-  findId(id: string): Promise<TRequestUser | null>;
+  findId(id: string): Promise<TRequestUser>;
 }

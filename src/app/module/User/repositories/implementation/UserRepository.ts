@@ -41,12 +41,21 @@ class UserRepository implements IUserRepository {
     });
   }
 
-  async findId(id: string): Promise<TRequestUser | null> {
+  async findId(id: string): Promise<TRequestUser> {
     return prismaUser.findUnique({
       where: {
         id,
       },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        type: true,
+        organizationId: true,
+        password: false,
+        code: false,
+        createdAt: false,
+        updatedAt: false,
         type_model_student: true,
         type_model_teacher: true,
         _count: {

@@ -26,7 +26,7 @@ export default async function authAdmin(
 
     if (user.type !== 'admin') throw new AppError('Você não tem autorização para fazer isso!');
 
-    request.user = { ...user, password: '', code: '' };
+    request.user = { ...user };
 
     return next();
   } catch (error) {

@@ -17,9 +17,9 @@ services:
     depends_on:
       - db
     ports:
-      - REDIS_PORT:REDIS_PORT
+      - REDIS_PORT:REDISPORT
     environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_PASSWORD=${REDISPASSWORD}
       - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
     volumes:
       - 'redis_data:/bitnami/redis/data'

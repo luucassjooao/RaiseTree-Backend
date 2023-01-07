@@ -33,6 +33,14 @@ class DraftRepository implements IDraftRepository {
       },
     });
   }
+
+  async deleteDraftById(id: string): Promise<TDraft> {
+    return prismaDraft.delete({
+      where: {
+        id,
+      },
+    });
+  }
 }
 
 export default new DraftRepository();
