@@ -20,4 +20,5 @@ export interface IActivityRepository {
   getAllActivitiesOfHomeTeacher(
     teacherId: string
   ): Promise<(TActivity & { subject: TSubject; })[]>;
+  getAllActivitysByOrganizationId(organizationId: string): Promise<TActivity[]>
 }

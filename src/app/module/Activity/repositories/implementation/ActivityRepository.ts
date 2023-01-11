@@ -89,6 +89,29 @@ class ActivityRepositories implements IActivityRepository {
       },
     });
   }
+
+  async getAllActivitysByOrganizationId(
+    organizationId: string,
+  ) {
+    return prismaActivity.findMany({
+      where: {
+        Teacher: {
+          user: {
+            organizationId,
+          },
+        },
+      },
+      include: {
+        Teacher: {
+          select: {
+            user: true,
+            subject: true,
+          },
+        },
+        subject: true,
+      },
+    });
+  }
 }
 
 export default new ActivityRepositories();

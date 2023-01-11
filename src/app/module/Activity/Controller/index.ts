@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 import { Request, Response } from 'express';
 import DeleteDraftById from '../../Draft/useCases/DeleteDraftById';
+import AdminGetActivity from '../useCases/AdminGetActivity';
 import CreateOneActivity from '../useCases/CreateOneActivity';
 import GetAllActivitiesOfHome from '../useCases/GetAllActivitiesOfHome';
 import GetUniqueActivityById from '../useCases/GetUniqueActivityById';
@@ -61,6 +62,12 @@ class ActivityController {
     );
 
     return response.status(200).json(getAllActivitiesOfHome);
+  }
+
+  async adminGetActivity(request: Request, response: Response) {
+    const getActivity = await AdminGetActivity(request.user?.organizationId as string);
+
+    return response.status(200).json(getActivity);
   }
 }
 
