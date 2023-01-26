@@ -4,9 +4,9 @@ import AppError from '../../../../error';
 import { TUser } from '../../../../prisma/infosUser';
 import CreateOrganization from '../../../Organization/useCases/CreateOrganization';
 import StaticUserRepository from '../../../StaticUser/repositories/implementation/StaticUserRepository';
-import StudentRepository from '../../../Student/repositories/implementation/StudentRepository';
-import TeacherRespository from '../../../Teacher/repositories/implementation/TeacherRespository';
-import UserRepository from '../../../User/repositories/implementation/UserRepository';
+import CreateStudent from '../../../Student/useCases/CreateStudent';
+import CreateTeacher from '../../../Teacher/useCases/CreateTeacher';
+import CreateUser from '../../../User/useCases/CreateUser';
 import { TInfosToken } from '../SendMailForRegister';
 
 type TDecodedToken = {
@@ -18,7 +18,7 @@ type TDecodedToken = {
 export default async function ActivePersonAndOrganization(token: string): Promise<TUser> {
   const decodedToken = <TDecodedToken>(
     verify(token, `${process.env.ACTIVE_TOKEN_SECRET}`)
-  );
+    );
   const { infosToken, exp }: TDecodedToken = decodedToken;
   if (!infosToken) throw new AppError('Informações Inválidas. Faça o registro novamente!');
 
@@ -45,7 +45,7 @@ export default async function ActivePersonAndOrganization(token: string): Promis
       organizationClassrooms,
     );
 
-    const createAdmin = await UserRepository.store({
+    const createAdmin = await CreateUser({
       organizationId: createOrganization.id,
       name,
       code: randomUUID(),
@@ -54,16 +54,12 @@ export default async function ActivePersonAndOrganization(token: string): Promis
       type: 'admin',
     });
 
-    await TeacherRespository.store({
-      classrooms: createOrganization.classrooms,
-      userId: createAdmin.id,
-      subjectId,
-    });
+    await CreateTeacher(createOrganization.classrooms, subjectId, createAdmin.id);
 
     return createAdmin;
   }
 
-  const createUser = await UserRepository.store({
+  const createUser = await CreateUser({
     organizationId,
     code,
     name,
@@ -73,18 +69,9 @@ export default async function ActivePersonAndOrganization(token: string): Promis
   });
 
   if (type === 'teacher') {
-    await TeacherRespository.store({
-      classrooms: personClassroom as string[],
-      subjectId,
-      userId: createUser.id,
-    });
+    await CreateTeacher(personClassroom as string[], subjectId, createUser.id);
   } if (type === 'student') {
-    await StudentRepository.store({
-      classroom: personClassroom as string,
-      current_points: 0,
-      points: [],
-      userId: createUser.id,
-    });
+    await CreateStudent(personClassroom as string, createUser.id);
   }
 
   await StaticUserRepository.deleteById(personStaticUserId);
