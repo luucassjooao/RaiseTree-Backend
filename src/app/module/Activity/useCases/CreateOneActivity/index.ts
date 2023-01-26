@@ -27,7 +27,7 @@ export default async function CreateOneActivity({
   const createActivity = await ActivityRepository.store({
     title,
     description,
-    classrooms: !classrooms ? findTeacher?.classrooms as string[] : classrooms as string[],
+    classrooms: classrooms ? findTeacher?.classrooms as string[] : classrooms,
     activity,
     dateExpiration: new Date(dateExpiration),
     type,

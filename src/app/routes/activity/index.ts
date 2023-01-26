@@ -6,7 +6,8 @@ import ActivityController from '../../module/Activity/Controller';
 
 const newActivityRouter = Router();
 
-newActivityRouter.post('/createActivity/:idDraft', authTeacher, ActivityController.store);
+newActivityRouter.post('/createActivity', authTeacher, ActivityController.store);
+newActivityRouter.post('/createActivitywithDraft/:idDraft', authTeacher, ActivityController.createActivityWithDraft);
 newActivityRouter.get('/getUniqueById/:id', auth, ActivityController.getUniquerActivityById);
 newActivityRouter.get('/getHomeActivities', auth, ActivityController.getAllActivitiesOfHome);
 newActivityRouter.get('/adminGetActivity', authAdmin, ActivityController.adminGetActivity);

@@ -18,6 +18,32 @@ class ActivityController {
       previous_points,
     } = request.body;
 
+    await CreateOneActivity({
+      title,
+      description,
+      classrooms,
+      activity,
+      dateExpiration,
+      type,
+      previous_points,
+      subjectId: request.user?.type_model_teacher?.subject.id as string,
+      teacherId: request.user?.type_model_teacher?.id as string,
+    });
+
+    return response.status(201).json({ message: 'Atividade Criada' });
+  }
+
+  async createActivityWithDraft(request: Request, response: Response): Promise<Response> {
+    const {
+      title,
+      description,
+      classrooms,
+      activity,
+      dateExpiration,
+      type,
+      previous_points,
+    } = request.body;
+
     const { idDraft } = request.params;
 
     await CreateOneActivity({
@@ -28,7 +54,7 @@ class ActivityController {
       dateExpiration,
       type,
       previous_points,
-      subjectId: request.user?.type_model_teacher?.subjectId as string,
+      subjectId: request.user?.type_model_teacher?.subject.id as string,
       teacherId: request.user?.type_model_teacher?.id as string,
     });
 
