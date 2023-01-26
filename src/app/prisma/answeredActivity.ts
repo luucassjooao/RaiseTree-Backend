@@ -1,5 +1,3 @@
-import { PrismaClient } from '@prisma/client';
-
 export type TAnsweredActivity = {
   id: string
   note_of_teacher: string
@@ -9,7 +7,3 @@ export type TAnsweredActivity = {
   studentId: string | null
   activityId: string | null
 };
-
-const { answeredActivity } = new PrismaClient();
-
-export { answeredActivity as prismaAnsweredActivity };

@@ -1,9 +1,10 @@
-import { prismaStaticUser, TStaticUser } from '../../../../prisma/staticUser';
+import prismaClient from '../../../../prisma';
+import { TStaticUser } from '../../../../prisma/staticUser';
 import { IStaticRepository } from '../IStaticRepository';
 
 class StaticUserRepository implements IStaticRepository {
   async store(data: Omit<TStaticUser, 'id' | 'createdAt'>): Promise<TStaticUser> {
-    return prismaStaticUser.create({
+    return prismaClient.staticUser.create({
       data: {
         name: data.name,
         type: data.type,
@@ -15,7 +16,7 @@ class StaticUserRepository implements IStaticRepository {
   }
 
   async findAllPeoplesInMyOrganization(organizationId: string): Promise<TStaticUser[] | null> {
-    return prismaStaticUser.findMany({
+    return prismaClient.staticUser.findMany({
       where: {
         organizationId,
       },
@@ -23,7 +24,7 @@ class StaticUserRepository implements IStaticRepository {
   }
 
   async findCode(code: string): Promise<TStaticUser | null> {
-    return prismaStaticUser.findFirst({
+    return prismaClient.staticUser.findFirst({
       where: {
         code,
       },
@@ -31,7 +32,7 @@ class StaticUserRepository implements IStaticRepository {
   }
 
   async findName(name: string): Promise<TStaticUser | null> {
-    return prismaStaticUser.findFirst({
+    return prismaClient.staticUser.findFirst({
       where: {
         name,
       },
@@ -39,7 +40,7 @@ class StaticUserRepository implements IStaticRepository {
   }
 
   async deleteById(id: string): Promise<TStaticUser> {
-    return prismaStaticUser.delete({
+    return prismaClient.staticUser.delete({
       where: {
         id,
       },

@@ -1,11 +1,9 @@
-import { PrismaClient } from '@prisma/client';
 import app from './app';
+import prismaClient from './app/prisma';
 
 (async () => {
-  const prisma = new PrismaClient();
-
   try {
-    await prisma.$connect();
+    await prismaClient.$connect();
     const { NODE_ENV, URL_SERVER_IS_RUNNING } = process.env;
     const PORT = process.env.PORT || 3000;
 

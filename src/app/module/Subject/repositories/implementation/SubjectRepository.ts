@@ -1,9 +1,10 @@
-import { prismaSubject, TSubject } from '../../../../prisma/subject';
+import prismaClient from '../../../../prisma';
+import { TSubject } from '../../../../prisma/subject';
 import { ISubjectRepository } from '../ISubjectRepository';
 
 class SubjectRepository implements ISubjectRepository {
   async store(name: string): Promise<TSubject> {
-    return prismaSubject.create({
+    return prismaClient.subject.create({
       data: {
         name,
       },
@@ -11,7 +12,7 @@ class SubjectRepository implements ISubjectRepository {
   }
 
   async findSubject(name: string): Promise<TSubject | null> {
-    return prismaSubject.findFirst({
+    return prismaClient.subject.findFirst({
       where: {
         name: {
           equals: name,
@@ -22,7 +23,7 @@ class SubjectRepository implements ISubjectRepository {
   }
 
   async getAllSubjects(): Promise<TSubject[] | null> {
-    return prismaSubject.findMany({});
+    return prismaClient.subject.findMany({});
   }
 }
 

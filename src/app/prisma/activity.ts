@@ -1,5 +1,3 @@
-import { PrismaClient } from '@prisma/client';
-
 export type TActivity = {
   id: string
   title: string
@@ -14,7 +12,3 @@ export type TActivity = {
   teacherId: string | null
   subjectId: string
 }
-
-const { activity } = new PrismaClient();
-
-export { activity as prismaActivity };

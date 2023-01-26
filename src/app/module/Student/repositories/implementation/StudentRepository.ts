@@ -1,15 +1,16 @@
-import { prismaStudent, TStudent } from '../../../../prisma/student';
+import prismaClient from '../../../../prisma';
+import { TStudent } from '../../../../prisma/student';
 import { IStudentReposiory } from '../IStudentRepository';
 
 class StudentRepository implements IStudentReposiory {
   async store(data: Omit<TStudent, 'id'>): Promise<TStudent> {
-    return prismaStudent.create({
+    return prismaClient.student.create({
       data,
     });
   }
 
   async findByFKUserId(id: string): Promise<TStudent | null> {
-    return prismaStudent.findUnique({
+    return prismaClient.student.findUnique({
       where: {
         userId: id,
       },
@@ -17,7 +18,7 @@ class StudentRepository implements IStudentReposiory {
   }
 
   async addPointsInStudent(studentId: string, points: number): Promise<TStudent | null> {
-    return prismaStudent.update({
+    return prismaClient.student.update({
       where: {
         id: studentId,
       },
@@ -30,7 +31,7 @@ class StudentRepository implements IStudentReposiory {
   }
 
   async findId(id: string): Promise<TStudent | null> {
-    return prismaStudent.findUnique({
+    return prismaClient.student.findUnique({
       where: {
         id,
       },
@@ -44,7 +45,7 @@ class StudentRepository implements IStudentReposiory {
     user: { id: string; name: string; };
   }[]
   > {
-    return prismaStudent.findMany({
+    return prismaClient.student.findMany({
       where: {
         classroom,
       },
@@ -55,6 +56,12 @@ class StudentRepository implements IStudentReposiory {
         points: false,
         reply_activities: false,
         userId: false,
+        frequency: true,
+        _count: {
+          select: {
+            reply_activities: true,
+          },
+        },
         user: {
           select: {
             id: true,

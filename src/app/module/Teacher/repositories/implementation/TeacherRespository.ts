@@ -1,9 +1,10 @@
-import { prismaTeacher, TTeacher } from '../../../../prisma/teacher';
+import prismaClient from '../../../../prisma';
+import { TTeacher } from '../../../../prisma/teacher';
 import { ITeacherRepository } from '../ITeacherRespository';
 
 class TeacherRepository implements ITeacherRepository {
   async store(data: Omit<TTeacher, 'activities' | 'id'>): Promise<TTeacher> {
-    return prismaTeacher.create({
+    return prismaClient.teacher.create({
       data: {
         userId: data.userId,
         classrooms: data.classrooms,
@@ -13,7 +14,7 @@ class TeacherRepository implements ITeacherRepository {
   }
 
   async findByFKUserId(id: string): Promise<TTeacher | null> {
-    return prismaTeacher.findUnique({
+    return prismaClient.teacher.findUnique({
       where: {
         userId: id,
       },
@@ -21,7 +22,7 @@ class TeacherRepository implements ITeacherRepository {
   }
 
   async findId(id: string): Promise<TTeacher | null> {
-    return prismaTeacher.findUnique({
+    return prismaClient.teacher.findUnique({
       where: {
         id,
       },

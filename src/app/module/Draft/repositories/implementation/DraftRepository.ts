@@ -1,4 +1,5 @@
-import { prismaDraft, TDraft } from '../../../../prisma/draft';
+import prismaClient from '../../../../prisma';
+import { TDraft } from '../../../../prisma/draft';
 import { IDraftRepository } from '../IDraftRepository';
 
 class DraftRepository implements IDraftRepository {
@@ -8,7 +9,7 @@ class DraftRepository implements IDraftRepository {
     title: string,
     userId: string,
   ): Promise<TDraft> {
-    return prismaDraft.create({
+    return prismaClient.draft.create({
       data: {
         description,
         draft,
@@ -19,7 +20,7 @@ class DraftRepository implements IDraftRepository {
   }
 
   async findAllDraftsByUserId(userId: string): Promise<TDraft[] | null> {
-    return prismaDraft.findMany({
+    return prismaClient.draft.findMany({
       where: {
         infosUserId: userId,
       },
@@ -27,7 +28,7 @@ class DraftRepository implements IDraftRepository {
   }
 
   async findUniqueDraftById(id: string): Promise<TDraft | null> {
-    return prismaDraft.findUnique({
+    return prismaClient.draft.findUnique({
       where: {
         id,
       },
@@ -35,7 +36,7 @@ class DraftRepository implements IDraftRepository {
   }
 
   async deleteDraftById(id: string): Promise<TDraft> {
-    return prismaDraft.delete({
+    return prismaClient.draft.delete({
       where: {
         id,
       },

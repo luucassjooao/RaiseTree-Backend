@@ -1,11 +1,12 @@
-import { prismaUser, TUser } from '../../../../prisma/infosUser';
+import prismaClient from '../../../../prisma';
+import { TUser } from '../../../../prisma/infosUser';
 import { IUserRepository, TRequestUser } from '../IUserRepository';
 
 class UserRepository implements IUserRepository {
   async store(data: Omit<
     TUser, 'type_model_student' | 'type_model_teacher' | 'drafts' | 'id' | 'createdAt' | 'updatedAt'
   >): Promise<TUser> {
-    return prismaUser.create({
+    return prismaClient.infosUser.create({
       data: {
         organizationId: data.organizationId,
         name: data.name,
@@ -18,7 +19,7 @@ class UserRepository implements IUserRepository {
   }
 
   async findEmail(email: string): Promise<TUser | null> {
-    return prismaUser.findFirst({
+    return prismaClient.infosUser.findFirst({
       where: {
         email,
       },
@@ -26,7 +27,7 @@ class UserRepository implements IUserRepository {
   }
 
   async findName(name: string): Promise<TUser | null> {
-    return prismaUser.findFirst({
+    return prismaClient.infosUser.findFirst({
       where: {
         name,
       },
@@ -34,7 +35,7 @@ class UserRepository implements IUserRepository {
   }
 
   async findCode(code: string): Promise<TUser | null> {
-    return prismaUser.findFirst({
+    return prismaClient.infosUser.findFirst({
       where: {
         code,
       },
@@ -42,7 +43,7 @@ class UserRepository implements IUserRepository {
   }
 
   async findId(id: string): Promise<TRequestUser> {
-    return prismaUser.findUnique({
+    return prismaClient.infosUser.findUnique({
       where: {
         id,
       },
@@ -57,7 +58,14 @@ class UserRepository implements IUserRepository {
         createdAt: false,
         updatedAt: false,
         type_model_student: true,
-        type_model_teacher: true,
+        type_model_teacher: {
+          select: {
+            activities: true,
+            classrooms: true,
+            id: true,
+            subject: true,
+          },
+        },
         _count: {
           select: {
             drafts: true,

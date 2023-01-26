@@ -1,5 +1,3 @@
-import { PrismaClient } from '@prisma/client';
-
 export type TStaticUser = {
   id: string
   name: string
@@ -9,7 +7,3 @@ export type TStaticUser = {
   organizationId: string
   createdAt: Date
 }
-
-const { staticUser } = new PrismaClient();
-
-export { staticUser as prismaStaticUser };

@@ -1,5 +1,3 @@
-import { PrismaClient } from '@prisma/client';
-
 export type TUser = {
   id: string
   name: string
@@ -11,7 +9,3 @@ export type TUser = {
   updatedAt: Date
   organizationId: string | null
 }
-
-const { infosUser } = new PrismaClient();
-
-export { infosUser as prismaUser };

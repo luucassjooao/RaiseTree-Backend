@@ -1,11 +1,12 @@
 /* eslint-disable camelcase */
+import prismaClient from '../../../../prisma';
 import { TActivity } from '../../../../prisma/activity';
-import { prismaAnsweredActivity, TAnsweredActivity } from '../../../../prisma/answeredActivity';
+import { TAnsweredActivity } from '../../../../prisma/answeredActivity';
 import { IAnswerActivityRepository } from '../IAnswerActivityRepository';
 
 class AnsweredActivityRepository implements IAnswerActivityRepository {
   async store(answer: string, activityId: string, studentId: string): Promise<TAnsweredActivity> {
-    return prismaAnsweredActivity.create({
+    return prismaClient.answeredActivity.create({
       data: {
         answer,
         activityId,
@@ -16,7 +17,7 @@ class AnsweredActivityRepository implements IAnswerActivityRepository {
   }
 
   async findId(id: string): Promise<TAnsweredActivity | null> {
-    return prismaAnsweredActivity.findUnique({
+    return prismaClient.answeredActivity.findUnique({
       where: {
         id,
       },
@@ -27,7 +28,7 @@ class AnsweredActivityRepository implements IAnswerActivityRepository {
     activityId: string,
     studentId: string,
   ): Promise<TAnsweredActivity | null> {
-    return prismaAnsweredActivity.findFirst({
+    return prismaClient.answeredActivity.findFirst({
       where: {
         activityId,
         studentId,
@@ -39,7 +40,7 @@ class AnsweredActivityRepository implements IAnswerActivityRepository {
     note_of_teacher: string,
     answerId: string,
   ): Promise<TAnsweredActivity | null> {
-    return prismaAnsweredActivity.update({
+    return prismaClient.answeredActivity.update({
       where: {
         id: answerId,
       },
@@ -53,7 +54,7 @@ class AnsweredActivityRepository implements IAnswerActivityRepository {
     studentId: string,
     teacherId: string,
   ): Promise<(TAnsweredActivity & { Activity: TActivity | null; })[]> {
-    return prismaAnsweredActivity.findMany({
+    return prismaClient.answeredActivity.findMany({
       where: {
         studentId,
         Activity: {

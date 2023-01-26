@@ -1,5 +1,3 @@
-import { PrismaClient } from '@prisma/client';
-
 export type TDraft = {
   id: string
   title: string
@@ -9,7 +7,3 @@ export type TDraft = {
   updatedAt: Date
   infosUserId: string | null
 };
-
-const { draft } = new PrismaClient();
-
-export { draft as prismaDraft };
