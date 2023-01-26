@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import addFrequencyStudent from '../useCases/AddFrequencyStudent';
 import GetAllStudentsByClassroom from '../useCases/GetAllStudentsByClassroom';
 
 class StudentController {
@@ -11,6 +12,14 @@ class StudentController {
     );
 
     return response.status(200).json(getStudents);
+  }
+
+  async addFrequency(request: Request, response: Response) {
+    const { frequencyStudents } = request.body;
+
+    await addFrequencyStudent(frequencyStudents);
+
+    return response.status(204);
   }
 }
 

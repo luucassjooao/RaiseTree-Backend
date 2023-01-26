@@ -5,5 +5,6 @@ import StudentController from '../../module/Student/Controller';
 const studentRouter = Router();
 
 studentRouter.get('/getStudents/:classroom', authTeacher, StudentController.getAllStudentsByClassroom);
+studentRouter.patch('/addFrequency', authTeacher, StudentController.addFrequency);
 
 export default studentRouter;
