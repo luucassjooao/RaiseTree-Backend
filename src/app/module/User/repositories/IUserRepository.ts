@@ -1,11 +1,17 @@
 /* eslint-disable no-unused-vars */
+import { TActivity } from '../../../prisma/activity';
 import { TUser } from '../../../prisma/infosUser';
 import { TStudent } from '../../../prisma/student';
-import { TTeacher } from '../../../prisma/teacher';
+import { TSubject } from '../../../prisma/subject';
 
 export type TRequestUser = (Pick<TUser, 'id' | 'name' | 'email' | 'organizationId' | 'type'> & {
   type_model_student: TStudent | null;
-  type_model_teacher: TTeacher | null;
+  type_model_teacher: {
+    id: string;
+    activities: TActivity[];
+    classrooms: string[];
+    subject: TSubject;
+} | null;
   _count: {
       drafts: number;
   };
