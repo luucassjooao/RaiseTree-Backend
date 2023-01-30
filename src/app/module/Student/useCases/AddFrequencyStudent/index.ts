@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import prismaClient from '../../../../prisma';
 import { TFrequency, TStudent } from '../../../../prisma/student';
 import StudentRepository from '../../repositories/implementation/StudentRepository';
@@ -12,8 +12,7 @@ interface TFrequencyStudents {
 export default async function addFrequencyStudent(
   infosStudents: TFrequencyStudents[],
 ): Promise<TStudent[] | null> {
-  const prisma = new PrismaClient();
-  const getStudents = [];
+  const getStudents: Prisma.Prisma__StudentClient<TStudent, never>[] = [];
 
   // eslint-disable-next-line no-restricted-syntax
   for await (const { student, subjectName } of infosStudents) {
@@ -37,7 +36,7 @@ export default async function addFrequencyStudent(
   }
 
   if (getStudents.length > 0) {
-    return prisma.$transaction(getStudents);
+    return prismaClient.$transaction(getStudents);
   }
   return null;
 }

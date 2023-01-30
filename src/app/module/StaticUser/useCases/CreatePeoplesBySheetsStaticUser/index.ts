@@ -1,6 +1,9 @@
+import { Prisma } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import { GoogleSpreadsheet } from 'google-spreadsheet';
 import AppError from '../../../../error';
+import prismaClient from '../../../../prisma';
+import { TStaticUser } from '../../../../prisma/staticUser';
 import UserRepository from '../../../User/repositories/implementation/UserRepository';
 import StaticUserRepository from '../../repositories/implementation/StaticUserRepository';
 
@@ -10,7 +13,7 @@ export default async function CreatePeoplesBySheetsStaticUser(
   organizationId: string,
   classroomsOfOrganization: string[],
   prefixClassroom: string,
-): Promise<string[]> {
+): Promise<TStaticUser[] | null> {
   const doc = new GoogleSpreadsheet(sheetId);
 
   await doc.useServiceAccountAuth({
@@ -23,7 +26,7 @@ export default async function CreatePeoplesBySheetsStaticUser(
 
   const rows = await sheet.getRows();
 
-  const peoplesAdding: string[] = [];
+  const peoplesAdding: Prisma.Prisma__StaticUserClient<TStaticUser, never>[] = [];
 
   // eslint-disable-next-line no-restricted-syntax
   for await (const acRow of rows.keys()) {
@@ -49,27 +52,36 @@ export default async function CreatePeoplesBySheetsStaticUser(
       .findIndex((sala) => sala === row.Sala);
 
     if (typeOfPeoples === 'student' && (findClassRoomOfPeople !== -1)) {
-      peoplesAdding.push(row.Nome);
-      await StaticUserRepository.store({
-        name: row.Nome,
-        classroom: [`${prefixClassroom} | ${row.Sala}`],
-        code: row.Cpf,
-        type: 'student',
-        organizationId,
-      });
+      peoplesAdding.push(
+        prismaClient.staticUser.create({
+          data: {
+            name: row.Nome,
+            classroom: [`${prefixClassroom} | ${row.Sala}`],
+            code: row.Cpf,
+            type: 'student',
+            organizationId,
+          },
+        }),
+      );
     } else if (typeOfPeoples === 'teacher') {
-      peoplesAdding.push(row.Nome);
       const classroomsTeachers = row.Sala.split(',').map((sala: string) => `${prefixClassroom} | ${sala}`);
-
-      await StaticUserRepository.store({
-        name: row.Nome,
-        classroom: classroomsTeachers,
-        code: randomUUID(),
-        type: 'teacher',
-        organizationId,
-      });
+      peoplesAdding.push(
+        prismaClient.staticUser.create({
+          data: {
+            name: row.Nome,
+            classroom: classroomsTeachers,
+            code: randomUUID(),
+            type: 'teacher',
+            organizationId,
+          },
+        }),
+      );
     } else throw new AppError(`O ${typeOfPeoples === 'student' ? 'estudante' : 'professor'}, ${row.Nome}, está com uma sala que não existe na sua organização!!`);
   }
 
-  return peoplesAdding;
+  if (peoplesAdding.length > 0) {
+    return prismaClient.$transaction(peoplesAdding);
+  }
+
+  return null;
 }

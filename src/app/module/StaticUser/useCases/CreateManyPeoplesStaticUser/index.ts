@@ -1,5 +1,8 @@
+import { Prisma } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import AppError from '../../../../error';
+import prismaClient from '../../../../prisma';
+import { TStaticUser } from '../../../../prisma/staticUser';
 import UserRepository from '../../../User/repositories/implementation/UserRepository';
 import StaticUserRepository from '../../repositories/implementation/StaticUserRepository';
 
@@ -13,8 +16,8 @@ type TPeoples = {
 export default async function CreateManyPeoplesStaticUser(
   { peoples, organizationId }:
   { peoples: TPeoples[]; organizationId: string; },
-): Promise<TPeoples[]> {
-  const peoplesCreated: TPeoples[] = [];
+): Promise<TStaticUser[] | null> {
+  const peoplesCreated: Prisma.Prisma__StaticUserClient<TStaticUser, never>[] = [];
 
   // eslint-disable-next-line no-restricted-syntax
   for await (const people of peoples) {
@@ -32,15 +35,22 @@ export default async function CreateManyPeoplesStaticUser(
       ) && findCpfInUser.organizationId === organizationId
     ) throw new AppError(`O estudante ${people.name}, está com um CPF já cadastrado, em uma pessoa que já está dentro da sua organização!`);
 
-    peoplesCreated.push(people);
-    await StaticUserRepository.store({
-      name: people.name,
-      classroom: people.classroom,
-      code: people.type === 'student' ? people.cpf : randomUUID(),
-      type: people.type,
-      organizationId,
-    });
+    peoplesCreated.push(
+      prismaClient.staticUser.create({
+        data: {
+          name: people.name,
+          classroom: people.classroom,
+          code: people.type === 'student' ? people.cpf : randomUUID(),
+          type: people.type,
+          organizationId,
+        },
+      }),
+    );
   }
 
-  return peoplesCreated;
+  if (peoplesCreated.length > 0) {
+    return prismaClient.$transaction(peoplesCreated);
+  }
+
+  return null;
 }
