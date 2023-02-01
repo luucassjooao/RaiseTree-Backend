@@ -2,6 +2,7 @@ import { randomUUID } from 'crypto';
 import { verify } from 'jsonwebtoken';
 import AppError from '../../../../error';
 import { TUser } from '../../../../prisma/infosUser';
+import { TDecodedToken } from '../../../../utils/generateTokens';
 import CreateOrganization from '../../../Organization/useCases/CreateOrganization';
 import StaticUserRepository from '../../../StaticUser/repositories/implementation/StaticUserRepository';
 import CreateStudent from '../../../Student/useCases/CreateStudent';
@@ -9,17 +10,11 @@ import CreateTeacher from '../../../Teacher/useCases/CreateTeacher';
 import CreateUser from '../../../User/useCases/CreateUser';
 import { TInfosToken } from '../SendMailForRegister';
 
-type TDecodedToken = {
-  iat: number;
-  exp: number;
-  infosToken: TInfosToken;
-}
-
 export default async function ActivePersonAndOrganization(token: string): Promise<TUser> {
-  const decodedToken = <TDecodedToken>(
+  const decodedToken = <TDecodedToken<TInfosToken>>(
     verify(token, `${process.env.ACTIVE_TOKEN_SECRET}`)
     );
-  const { infosToken, exp }: TDecodedToken = decodedToken;
+  const { infosToken, exp }: TDecodedToken<TInfosToken> = decodedToken;
   if (!infosToken) throw new AppError('Informações Inválidas. Faça o registro novamente!');
 
   if (Date.now() >= exp * 1000) throw new AppError('A data do email expirou! Faça o registro novamente!');

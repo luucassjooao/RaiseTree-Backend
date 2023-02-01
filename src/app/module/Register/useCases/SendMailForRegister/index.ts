@@ -2,7 +2,7 @@ import { hash } from 'bcrypt';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import AppError from '../../../../error';
 import { generateActiveToken } from '../../../../utils/generateTokens';
-import sendMail from '../../../../utils/sendMail';
+import sendMail from '../../../../utils/Email/sendMail';
 import isValidUUID from '../../../../utils/validUUID';
 import OrganizationRepository from '../../../Organization/repositories/implementation/OrganizationRepository';
 import StaticUserRepository from '../../../StaticUser/repositories/implementation/StaticUserRepository';
@@ -62,7 +62,12 @@ export default async function SendMailForRegister(
     const activeToken = generateActiveToken({ infosToken });
     const url = `${process.env.BASE_URL}/active?token=${activeToken}`;
 
-    const sendEmail = sendMail(email, url, 'Clique aqui para ativar sua conta!');
+    const sendEmail = sendMail(
+      email,
+      'sendMailForFirstTime',
+      url,
+      'Clique aqui para ativar sua conta!',
+    );
 
     return sendEmail;
   }
@@ -97,7 +102,12 @@ export default async function SendMailForRegister(
   const activeToken = generateActiveToken({ infosToken });
   const url = `${process.env.BASE_URL}/active?token=${activeToken}`;
 
-  const sendEmail = sendMail(email, url, 'Clique aqui para ativar sua conta!');
+  const sendEmail = sendMail(
+    email,
+    'sendMailForFirstTime',
+    url,
+    'Clique aqui para ativar sua conta!',
+  );
 
   return sendEmail;
 }

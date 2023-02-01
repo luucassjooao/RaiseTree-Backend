@@ -4,6 +4,9 @@ import { GoogleSpreadsheet } from 'google-spreadsheet';
 import AppError from '../../../../error';
 import prismaClient from '../../../../prisma';
 import { TStaticUser } from '../../../../prisma/staticUser';
+import sendMail from '../../../../utils/Email/sendMail';
+import { generateActiveTokenTeacher } from '../../../../utils/generateTokens';
+import { SendMailForTeacher } from '../../../../utils/types';
 import UserRepository from '../../../User/repositories/implementation/UserRepository';
 import StaticUserRepository from '../../repositories/implementation/StaticUserRepository';
 
@@ -27,6 +30,7 @@ export default async function CreatePeoplesBySheetsStaticUser(
   const rows = await sheet.getRows();
 
   const peoplesAdding: Prisma.Prisma__StaticUserClient<TStaticUser, never>[] = [];
+  const teacherCreated: SendMailForTeacher[] = [];
 
   // eslint-disable-next-line no-restricted-syntax
   for await (const acRow of rows.keys()) {
@@ -65,12 +69,21 @@ export default async function CreatePeoplesBySheetsStaticUser(
       );
     } else if (typeOfPeoples === 'teacher') {
       const classroomsTeachers = row.Sala.split(',').map((sala: string) => `${prefixClassroom} | ${sala}`);
+      const randomUUIDForTeacher = randomUUID();
+
+      teacherCreated.push({
+        classroom: classroomsTeachers,
+        name: row.Nome,
+        email: row.Email,
+        code: randomUUIDForTeacher,
+        organizationId,
+      });
       peoplesAdding.push(
         prismaClient.staticUser.create({
           data: {
             name: row.Nome,
             classroom: classroomsTeachers,
-            code: randomUUID(),
+            code: randomUUIDForTeacher,
             type: 'teacher',
             organizationId,
           },
@@ -80,6 +93,19 @@ export default async function CreatePeoplesBySheetsStaticUser(
   }
 
   if (peoplesAdding.length > 0) {
+    if (teacherCreated.length > 0) {
+      // eslint-disable-next-line no-restricted-syntax
+      for await (const infosToken of teacherCreated) {
+        const activeToken = generateActiveTokenTeacher({ infosToken });
+        const url = `${process.env.BASE_URL}/activeTeacher?token=${activeToken}`;
+        sendMail(
+          infosToken.email,
+          'sendMailToTeacher',
+          url,
+          'Clique aqui para ativar sua conta!',
+        );
+      }
+    }
     return prismaClient.$transaction(peoplesAdding);
   }
 

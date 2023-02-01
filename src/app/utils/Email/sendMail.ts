@@ -2,6 +2,7 @@ import 'dotenv/config';
 
 import { createTransport } from 'nodemailer';
 import { OAuth2Client } from 'google-auth-library';
+import LiteralTemplateSendMail from './literalTemplateSendMail';
 
 const OAUTH_PLAYGROUND = 'https://developers.google.com/oauthplayground';
 
@@ -10,7 +11,13 @@ const CLIENT_SECRET = `${process.env.MAIL_CLIENT_SECRET}`;
 const REFRESH_TOKEN = `${process.env.MAIL_REFRESH_TOKEN}`;
 const SENDER_MAIL = `${process.env.SENDER_EMAIL_ADDRESS}`;
 
-export default async function sendMail(to: string, url: string, txt: string) {
+export default async function sendMail(
+  to: string,
+  typeTemplate: 'sendMailForFirstTime' | 'sendMailToTeacher',
+  url: string,
+  text: string,
+  organizationName?: string,
+) {
   const oAuth2Client = new OAuth2Client(
     CLIENT_ID,
     CLIENT_SECRET,
@@ -38,15 +45,7 @@ export default async function sendMail(to: string, url: string, txt: string) {
       from: SENDER_MAIL,
       to,
       subject: 'Rasie Tree',
-      html: `
-      <div style="display: grid; max-width: 600px; margin: auto; border: 8px solid #560bad; padding: 50px 20px; font-size: 110%;">
-        <h2 style="text-align: center; text-transform: uppercase; color: #240046;">Raise Tree</h2>
-        <p style="text-align: center; font-size: 20px;">Agradecemos sinceramente por escolher o RT para atender às suas necessidades. Estamos comprometidos em fornecer um produto de alta qualidade e um atendimento excepcional ao cliente. Se você tiver alguma dúvida ou precisar de ajuda, não hesite em entrar em contato conosco. Obrigado por confiar em nós.</p>
-        <a href=${url} style="background: rgb(189, 189, 189); text-align: center; font-size: 20px; padding: 10px 20px; margin: 10px auto;">${txt}</a>
-        <p>Se o botão não funcionar por qualquer razão, click nesse link!</p>
-        <div><a href=${url}>${url}</a></div>
-      </div>
-      `,
+      html: LiteralTemplateSendMail[typeTemplate](url, text, organizationName as string),
     };
 
     const result = await transport.sendMail(mailOptions);

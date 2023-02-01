@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import ActivePersonAndOrganization from '../useCases/ActivePersonAndOrganization';
+import ActiveTeacherByMail from '../useCases/ActiveTeacherByMail/ActiveTeacherByMail';
 import SendMailForRegister from '../useCases/SendMailForRegister';
 
 class RegisterController {
@@ -43,6 +44,17 @@ class RegisterController {
     const create = await ActivePersonAndOrganization(activeToken);
 
     return response.status(201).json({ message: 'Você agora está registrado(a)!', create });
+  }
+
+  async registerTeacher(
+    request: Request,
+    response: Response,
+  ): Promise<Response> {
+    const { activeToken, password, subjectId } = request.body;
+
+    await ActiveTeacherByMail(activeToken, password, subjectId);
+
+    return response.status(201).json({ message: 'Professor registrado!' });
   }
 }
 

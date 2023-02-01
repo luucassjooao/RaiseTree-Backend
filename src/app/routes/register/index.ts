@@ -7,5 +7,7 @@ newRegisterRouter
   .post('/sendEmailForRegister', RegisterController.sendMailForRegister);
 newRegisterRouter
   .post('/activeUserWithCode', RegisterController.registerWithCode);
+newRegisterRouter
+  .post('/activeTeacher', RegisterController.registerTeacher);
 
 export default newRegisterRouter;

@@ -3,17 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import { verify } from 'jsonwebtoken';
 import AppError from '../../error';
 import UserRepository from '../../module/User/repositories/implementation/UserRepository';
-import { TUser } from '../../prisma/infosUser';
-import { TStudent } from '../../prisma/student';
-import { TTeacher } from '../../prisma/teacher';
-
-type TDecodedAccess = {
-  id: string;
-  infosUser: {
-    findUser: TUser;
-    findInformationOfUser: TTeacher | TStudent;
-  }
-}
+import { TDecodedAccess } from './types';
 
 export default async function auth(
   request: Request,

@@ -3,21 +3,18 @@ import { randomUUID } from 'crypto';
 import AppError from '../../../../error';
 import prismaClient from '../../../../prisma';
 import { TStaticUser } from '../../../../prisma/staticUser';
+import sendMail from '../../../../utils/Email/sendMail';
+import { generateActiveTokenTeacher } from '../../../../utils/generateTokens';
+import { SendMailForTeacher, TPeoples } from '../../../../utils/types';
 import UserRepository from '../../../User/repositories/implementation/UserRepository';
 import StaticUserRepository from '../../repositories/implementation/StaticUserRepository';
-
-type TPeoples = {
-  name: string;
-  type: 'student' | 'teacher';
-  classroom: string[];
-  cpf: string;
-}
 
 export default async function CreateManyPeoplesStaticUser(
   { peoples, organizationId }:
   { peoples: TPeoples[]; organizationId: string; },
 ): Promise<TStaticUser[] | null> {
   const peoplesCreated: Prisma.Prisma__StaticUserClient<TStaticUser, never>[] = [];
+  const teacherCreated: SendMailForTeacher[] = [];
 
   // eslint-disable-next-line no-restricted-syntax
   for await (const people of peoples) {
@@ -34,21 +31,44 @@ export default async function CreateManyPeoplesStaticUser(
         && findCpfInUser
       ) && findCpfInUser.organizationId === organizationId
     ) throw new AppError(`O estudante ${people.name}, está com um CPF já cadastrado, em uma pessoa que já está dentro da sua organização!`);
+    const randomUUIDForTeacher = randomUUID();
 
     peoplesCreated.push(
       prismaClient.staticUser.create({
         data: {
           name: people.name,
           classroom: people.classroom,
-          code: people.type === 'student' ? people.cpf : randomUUID(),
+          code: people.type === 'student' ? people.cpf : randomUUIDForTeacher,
           type: people.type,
           organizationId,
         },
       }),
     );
+    if (people.type === 'teacher') {
+      teacherCreated.push({
+        name: people.name,
+        email: people.email,
+        code: randomUUIDForTeacher,
+        organizationId,
+        classroom: people.classroom,
+      });
+    }
   }
 
   if (peoplesCreated.length > 0) {
+    if (teacherCreated.length > 0) {
+      // eslint-disable-next-line no-restricted-syntax
+      for await (const infosToken of teacherCreated) {
+        const activeToken = generateActiveTokenTeacher({ infosToken });
+        const url = `${process.env.BASE_URL}/activeTeacher?token=${activeToken}`;
+        sendMail(
+          infosToken.email,
+          'sendMailToTeacher',
+          url,
+          'Clique aqui para ativar sua conta!',
+        );
+      }
+    }
     return prismaClient.$transaction(peoplesCreated);
   }
 
