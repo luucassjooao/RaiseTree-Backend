@@ -44,7 +44,7 @@ export default async function sendMail(
     const mailOptions = {
       from: SENDER_MAIL,
       to,
-      subject: 'Rasie Tree',
+      subject: 'Raise Tree',
       html: LiteralTemplateSendMail[typeTemplate](url, text, organizationName as string),
     };
 
