@@ -5,12 +5,25 @@ import StaticUserRepository from '../../repositories/implementation/StaticUserRe
 export default async function FindAllPeoplesInMyOrganization(
   organizationId: string,
   userOrganizationId: string,
-): Promise<TStaticUser[] | null> {
+): Promise<{ type: any; peoples: TStaticUser[]; }[]> {
   if (userOrganizationId !== organizationId) throw new AppError('Ouve um error ao buscar as pessoas!');
 
   const findPeoples = await StaticUserRepository.findAllPeoplesInMyOrganization(organizationId);
 
   if (!findPeoples) throw new AppError('Não existe pessoas para fazerem registro na sua organização!');
 
-  return findPeoples;
+  const getAllTypeOfPerson = Array.from(new Set(findPeoples
+    .map(({ type }) => type)));
+
+  const organizatedArrayWithPersons = getAllTypeOfPerson
+    .map((verifyType) => findPeoples
+      .filter(({ type }) => type === verifyType))
+    .map((arrayActivity, interador) => (
+      {
+        type: getAllTypeOfPerson[interador],
+        peoples: arrayActivity.map((eachActivity) => eachActivity),
+      }
+    ));
+
+  return organizatedArrayWithPersons;
 }
