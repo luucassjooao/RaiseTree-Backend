@@ -1,3 +1,4 @@
+import { hash } from 'bcrypt';
 import { verify } from 'jsonwebtoken';
 import AppError from '../../../../error';
 import { TTeacher } from '../../../../prisma/teacher';
@@ -32,12 +33,14 @@ export default async function ActiveTeacherByMail(
   if (!findTeacherOnStaticUser) throw new AppError('Ouve algum error! Verifique com o coordenador!');
   await StaticUserRepository.deleteById(findTeacherOnStaticUser.id);
 
+  const hashedPassword = await hash(password, 10);
+
   const createUser = await CreateUser({
     organizationId,
     code,
     name,
     email,
-    password,
+    password: hashedPassword,
     type: 'teacher',
   });
 
