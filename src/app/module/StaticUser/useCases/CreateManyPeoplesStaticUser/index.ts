@@ -6,6 +6,7 @@ import { TStaticUser } from '../../../../prisma/staticUser';
 import sendMail from '../../../../utils/Email/sendMail';
 import { generateActiveTokenTeacher } from '../../../../utils/generateTokens';
 import { SendMailForTeacher, TPeoples } from '../../../../utils/types';
+import OrganizationRepository from '../../../Organization/repositories/implementation/OrganizationRepository';
 import UserRepository from '../../../User/repositories/implementation/UserRepository';
 import StaticUserRepository from '../../repositories/implementation/StaticUserRepository';
 
@@ -55,6 +56,9 @@ export default async function CreateManyPeoplesStaticUser(
     }
   }
 
+  const findNameOfOrganization = await OrganizationRepository.findOrganizationById(organizationId);
+  if (!findNameOfOrganization) throw new AppError('Ouve um erro! Tente novamente!');
+
   if (peoplesCreated.length > 0) {
     if (teacherCreated.length > 0) {
       // eslint-disable-next-line no-restricted-syntax
@@ -66,6 +70,7 @@ export default async function CreateManyPeoplesStaticUser(
           'sendMailToTeacher',
           url,
           'Clique aqui para ativar sua conta!',
+          findNameOfOrganization.name,
         );
       }
     }
