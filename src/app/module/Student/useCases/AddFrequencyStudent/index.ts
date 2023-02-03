@@ -11,7 +11,7 @@ interface TFrequencyStudents {
 
 export default async function addFrequencyStudent(
   infosStudents: TFrequencyStudents[],
-): Promise<TStudent[] | null> {
+): Promise<TStudent[]> {
   const getStudents: Prisma.Prisma__StudentClient<TStudent, never>[] = [];
 
   // eslint-disable-next-line no-restricted-syntax
@@ -35,8 +35,5 @@ export default async function addFrequencyStudent(
     );
   }
 
-  if (getStudents.length > 0) {
-    return prismaClient.$transaction(getStudents);
-  }
-  return null;
+  return prismaClient.$transaction(getStudents);
 }

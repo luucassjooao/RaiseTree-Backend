@@ -55,8 +55,6 @@ model Student {
   frequency        Json[]
 }
 
-// [23/01/2023: { subjectId, sebjectId }, 24/01.2023: { subjectId, subjectId }]
-
 model Teacher {
   id         String     @id @unique @default(uuid())
   classrooms String[]

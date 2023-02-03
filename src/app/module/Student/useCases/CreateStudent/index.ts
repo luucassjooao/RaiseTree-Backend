@@ -1,3 +1,4 @@
+import AppError from '../../../../error';
 import getAllSubjects from '../../../Subject/useCases/GetAllSubjects';
 import StudentRepository from '../../repositories/implementation/StudentRepository';
 
@@ -6,7 +7,9 @@ export default async function CreateStudent(
   userId: string,
 ) {
   const findSubjects = await getAllSubjects();
-  const arraySubjectsFrequency = findSubjects!.map((subject) => ({
+  if (!findSubjects) throw new AppError('Ouve um error! Tente novamente!');
+
+  const arraySubjectsFrequency = findSubjects.map((subject) => ({
     subjectName: subject.name,
     dates: [],
   }));
