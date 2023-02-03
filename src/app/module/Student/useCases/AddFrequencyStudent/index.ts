@@ -11,7 +11,7 @@ interface TFrequencyStudents {
 
 export default async function addFrequencyStudent(
   infosStudents: TFrequencyStudents[],
-): Promise<TStudent[]> {
+): Promise<TStudent[] | null> {
   const getStudents: Prisma.Prisma__StudentClient<TStudent, never>[] = [];
 
   // eslint-disable-next-line no-restricted-syntax
@@ -20,6 +20,9 @@ export default async function addFrequencyStudent(
     const guardFrequency: any = findStudent?.frequency;
     const findSubject: TFrequency = guardFrequency
       .find((frequency: TFrequency) => frequency.subjectName === subjectName);
+    const findToday = findSubject?.dates
+      .find((today) => today === String(new Date().toLocaleDateString('pt-br')));
+    if (findToday) return null;
     findSubject.dates = [...findSubject.dates, String(new Date().toLocaleDateString('pt-br'))];
 
     const updateFrequency = Prisma.validator<Prisma.StudentUpdateInput>()({
