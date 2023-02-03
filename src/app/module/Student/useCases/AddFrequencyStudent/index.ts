@@ -20,7 +20,7 @@ export default async function addFrequencyStudent(
     const guardFrequency: any = findStudent?.frequency;
     const findSubject: TFrequency = guardFrequency
       .find((frequency: TFrequency) => frequency.subjectName === subjectName);
-    findSubject.dates = [...findSubject.dates, String(new Date().toLocaleDateString())];
+    findSubject.dates = [...findSubject.dates, String(new Date().toLocaleDateString('pt-br'))];
 
     const updateFrequency = Prisma.validator<Prisma.StudentUpdateInput>()({
       frequency: guardFrequency,
