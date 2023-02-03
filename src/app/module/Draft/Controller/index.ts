@@ -15,7 +15,7 @@ class DraftController {
   async findAllDraftsByUserId(request: Request, response: Response): Promise<Response> {
     const findDrafts = await FindAllDraftsByUserId(request.user?.id as string);
 
-    return response.status(200).json({ findDrafts });
+    return response.status(200).json(findDrafts);
   }
 
   async findUniqueDraftById(request: Request, response: Response): Promise<Response> {
