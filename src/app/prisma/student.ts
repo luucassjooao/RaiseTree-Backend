@@ -5,11 +5,15 @@ export type TFrequency = {
   subjectName: string;
 }
 
+export type TPoints = {
+  points: number;
+  subjectName: string;
+}
+
 export type TStudent = {
   id: string
   classroom: string
-  current_points: number
-  points: number[]
+  points: Prisma.JsonArray;
   userId: string
   frequency: Prisma.JsonArray;
 }

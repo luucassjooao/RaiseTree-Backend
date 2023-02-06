@@ -34,7 +34,7 @@ class ActivityRepositories implements IActivityRepository {
             Student: {
               select: {
                 id: true,
-                current_points: true,
+                points: true,
                 classroom: true,
                 user: true,
               },

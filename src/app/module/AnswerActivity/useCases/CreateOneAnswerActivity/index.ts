@@ -9,6 +9,7 @@ export default async function CreateOneAnswerActivity(
   activityId: string,
   studentId: string,
   classroomStudent: string,
+  subjectName: string,
 ): Promise<TAnsweredActivity> {
   const findActivity = await ActivityRepository.getUniqueActivityById(activityId);
   if (!findActivity) throw new AppError('Esta atividade não está disponivel para ser respondida ou não existe!');
@@ -28,7 +29,11 @@ export default async function CreateOneAnswerActivity(
   );
 
   if (findActivity.previous_points >= 1) {
-    await StudentRepository.addPointsInStudent(studentId, findActivity.previous_points);
+    await StudentRepository.addPointsInStudent(
+      studentId,
+      findActivity.previous_points,
+      subjectName,
+    );
   }
 
   return createAnswer;

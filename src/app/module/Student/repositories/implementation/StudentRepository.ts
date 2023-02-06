@@ -1,5 +1,6 @@
+import { Prisma } from '@prisma/client';
 import prismaClient from '../../../../prisma';
-import { TStudent } from '../../../../prisma/student';
+import { TPoints, TStudent } from '../../../../prisma/student';
 import { IStudentReposiory } from '../IStudentRepository';
 
 class StudentRepository implements IStudentReposiory {
@@ -17,16 +18,26 @@ class StudentRepository implements IStudentReposiory {
     });
   }
 
-  async addPointsInStudent(studentId: string, points: number): Promise<TStudent | null> {
+  async addPointsInStudent(
+    studentId: string,
+    points: number,
+    subjectName: string,
+  ): Promise<TStudent | null> {
+    const findStudent = await this.findId(studentId);
+    const guardStudent: any = findStudent?.points;
+    const findSubject: TPoints = guardStudent
+      .find((point: TPoints) => point.subjectName === subjectName);
+    findSubject.points += points;
+
+    const updatePoints = Prisma.validator<Prisma.StudentUpdateInput>()({
+      points: guardStudent,
+    });
+
     return prismaClient.student.update({
       where: {
         id: studentId,
       },
-      data: {
-        current_points: {
-          increment: Number(points),
-        },
-      },
+      data: updatePoints,
     });
   }
 
@@ -41,7 +52,7 @@ class StudentRepository implements IStudentReposiory {
   async getAllStudentsByClassroom(classroom: string): Promise<{
     id: string;
     classroom: string;
-    current_points: number;
+    points: Prisma.JsonArray;
     user: { id: string; name: string; };
   }[]
   > {
@@ -51,9 +62,8 @@ class StudentRepository implements IStudentReposiory {
       },
       select: {
         classroom: true,
-        current_points: true,
         id: true,
-        points: false,
+        points: true,
         reply_activities: false,
         userId: false,
         frequency: true,

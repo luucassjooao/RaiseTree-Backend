@@ -11,6 +11,7 @@ export default async function ReplyAnswerOfStudent(
   // eslint-disable-next-line camelcase
   note_of_teacher: string,
   point: number,
+  subjectName: string,
 ): Promise<TAnsweredActivity | null> {
   const findStudentById = await StudentRepository.findId(studentId);
   if (!findStudentById) throw new AppError('Não foi possivel achar este estudante!', 404);
@@ -25,7 +26,7 @@ export default async function ReplyAnswerOfStudent(
 
   const updateAnswer = await AnswerActivityRepository
     .replyAnswerOfStudent(note_of_teacher, answerId);
-  await StudentRepository.addPointsInStudent(studentId, point);
+  await StudentRepository.addPointsInStudent(studentId, point, subjectName);
 
   return updateAnswer;
 }

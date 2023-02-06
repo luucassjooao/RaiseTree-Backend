@@ -6,13 +6,14 @@ import ReplyAnswerOfStudent from '../useCases/ReplyAnswerOfStudent';
 class AnswerActivityController {
   async store(request: Request, response: Response): Promise<Response> {
     const { activityId } = request.params;
-    const { answer } = request.body;
+    const { answer, subjectName } = request.body;
 
     const createAnswer = await CreateOneAnswerActivity(
       answer,
       activityId,
       request.user?.type_model_student?.id as string,
       request.user?.type_model_student?.classroom as string,
+      subjectName,
     );
 
     return response.status(201).json(createAnswer);
@@ -28,6 +29,7 @@ class AnswerActivityController {
       studentId,
       note,
       point,
+      request.user?.type_model_teacher?.subject.name as string,
     );
 
     return response.status(200).json({ message: 'Nota registrada!' });

@@ -1,24 +1,29 @@
-import AppError from '../../../../error';
+import { TStudent } from '../../../../prisma/student';
 import getAllSubjects from '../../../Subject/useCases/GetAllSubjects';
 import StudentRepository from '../../repositories/implementation/StudentRepository';
 
 export default async function CreateStudent(
   classroom: string,
   userId: string,
-) {
+): Promise<TStudent | null> {
   const findSubjects = await getAllSubjects();
-  if (!findSubjects) throw new AppError('Ouve um error! Tente novamente!');
+  if (!findSubjects) return null;
 
-  const arraySubjectsFrequency = findSubjects.map((subject) => ({
+  const arraySubjectsFrequency = findSubjects?.map((subject) => ({
     subjectName: subject.name,
     dates: [],
   }));
+  const arraySubjectsPoints = findSubjects?.map((subject) => ({
+    subjectName: subject.name,
+    points: 0,
+  }));
 
-  await StudentRepository.store({
+  const createdStudent = await StudentRepository.store({
     classroom,
-    current_points: 0,
-    points: [],
+    points: arraySubjectsPoints,
     userId,
     frequency: arraySubjectsFrequency,
   });
+
+  return createdStudent;
 }

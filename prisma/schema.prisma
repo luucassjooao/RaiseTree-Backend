@@ -47,8 +47,7 @@ model InfosUser {
 model Student {
   id               String             @id @unique @default(uuid())
   classroom        String
-  current_points   Int
-  points           Int[]
+  points           Json[]
   reply_activities AnsweredActivity[]
   user             InfosUser          @relation(fields: [userId], references: [id])
   userId           String             @unique
