@@ -22,6 +22,7 @@ class ActivityRepositories implements IActivityRepository {
         Teacher: {
           select: {
             user: true,
+            subject: true,
           },
         },
         subject: true,
