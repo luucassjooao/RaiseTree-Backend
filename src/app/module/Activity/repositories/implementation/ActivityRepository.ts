@@ -1,6 +1,5 @@
 import prismaClient from '../../../../prisma';
 import { TActivity } from '../../../../prisma/activity';
-import { TUser } from '../../../../prisma/infosUser';
 import { TSubject } from '../../../../prisma/subject';
 import { IActivityRepository } from '../IActivityRepository';
 
@@ -13,7 +12,10 @@ class ActivityRepositories implements IActivityRepository {
 
   async getUniqueActivityById(
     id: string,
-  ): Promise<(TActivity & { subject: TSubject; Teacher: { user: TUser; } | null; }) | null> {
+  ): Promise<(TActivity & { subject: TSubject; Teacher: { user: {
+    name: string,
+    id: string,
+  }; } | null; }) | null> {
     return prismaClient.activity.findUnique({
       where: {
         id,
@@ -21,7 +23,12 @@ class ActivityRepositories implements IActivityRepository {
       include: {
         Teacher: {
           select: {
-            user: true,
+            user: {
+              select: {
+                name: true,
+                id: true,
+              },
+            },
             subject: true,
           },
         },
@@ -46,8 +53,9 @@ class ActivityRepositories implements IActivityRepository {
     });
   }
 
-  async getAllActivitiesOfHomeStudent(
+  async getAllActivitiesOfHomeStudentAndAdmin(
     classroomUser: string,
+    type: 'student' | 'admin',
   ): Promise<(TActivity & { subject: TSubject; })[]> {
     return prismaClient.activity.findMany({
       where: {
@@ -55,7 +63,7 @@ class ActivityRepositories implements IActivityRepository {
           hasSome: [classroomUser],
         },
         createdAt: {
-          lt: new Date(),
+          lt: type === 'student' ? new Date() : '',
         },
       },
       include: {

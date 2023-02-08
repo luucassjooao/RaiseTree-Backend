@@ -13,9 +13,16 @@ export interface IActivityRepository {
   store(data: Omit<TActivity, 'id' | 'createdAt' | 'updatedAt'>): Promise<TActivity>;
   getUniqueActivityById(
     id: string
-  ): Promise<(TActivity & { subject: TSubject; Teacher: { user: TUser; } | null; }) | null>;
-  getAllActivitiesOfHomeStudent(
+  ): Promise<(TActivity
+    & { subject: TSubject;
+      Teacher: {
+        user: {
+          name: string;
+          id: string;
+        }; } | null; }) | null>;
+        getAllActivitiesOfHomeStudentAndAdmin(
     classroomUser: string,
+    type: 'student' | 'admin'
   ): Promise<(TActivity & { subject: TSubject; })[]>;
   getAllActivitiesOfHomeTeacher(
     teacherId: string

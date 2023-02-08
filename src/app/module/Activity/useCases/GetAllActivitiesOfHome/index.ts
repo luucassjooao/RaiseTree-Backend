@@ -4,14 +4,14 @@ import ActivityRepository from '../../repositories/implementation/ActivityReposi
 
 export default async function GetAllActivitiesOfHome(
   classroomUser: string | string[],
-  typeUser: 'teacher' | 'student',
+  typeUser: 'teacher' | 'student' | 'admin',
   teacherId?: string,
 ): Promise<
   { nameSubject: string; activitys: (TActivity & { subject: TSubject; })[]; }[]
 > {
-  if (typeUser === 'student') {
+  if (typeUser === ('student' || 'admin')) {
     const getAllActivitiesOfHomeStudent = await ActivityRepository
-      .getAllActivitiesOfHomeStudent(classroomUser as string);
+      .getAllActivitiesOfHomeStudentAndAdmin(classroomUser as string, typeUser);
 
     const getAllNameOfSubejcts = Array.from(new Set(getAllActivitiesOfHomeStudent
       .map(({ subject: { name } }) => name)));

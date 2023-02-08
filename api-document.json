@@ -1,0 +1,378 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Raise Tree",
+    "description": "Raise Tree é a API de um gerenciador de atividades escolares",
+    "contact": {
+      "name": "João Lucas",
+      "email": "mainexcalibur@protonmail.com"
+    },
+    "version": "1.0.0"
+  },
+  "tags": [
+    {
+      "name": "activity",
+      "description": "Responsável por criar e mostrar infos sobre atividades"
+    }
+  ],
+  "paths": {
+    "/createActivity": {
+      "post": {
+        "tags": ["activity"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Cria uma atividade do zero",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/definitions/Activity_Create"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "teacherId",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "subjectId",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Atividade Criada"
+          },
+          "400": {
+            "description": "Se estiver faltando algum campo, o professor recebe esse erro. {Está faltando algum campo!}"
+          }
+        }
+      }
+    },
+    "/createActivityWithDraft/:idDraft": {
+      "post": {
+        "tags": ["activity"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Cria uma atividade com informações de um rascunho",
+        "description": "Depois de criar uma atividade, o rascunho é deletado",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/definitions/Activity_Create"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "idDraft",
+            "in": "query",
+            "description": "ID de algum rascunho",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "teacherId",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "subjectId",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Atividade Criada"
+          },
+          "400": {
+            "description": "Se estiver faltando algum campo, o professor recebe esse erro. {Está faltando algum campo!}"
+          }
+        }
+      }
+    },
+    "/getUniqueById/:id": {
+      "get": {
+        "tags": ["activity"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Busca as informações de uma única atividade",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "ID de alguma atividade",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/Activity_Response_With_Answers"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Se o usuário que estiver querendo ver a atividade for estudante, e a sala do estudante não tiver na lista de salas que o professor mandou a atividade, ele recebe esse erro. {Você não pode visualizar está atividade!}"
+          }
+        }
+      }
+    },
+    "/getHomeActivities": {
+      "get": {
+        "tags": ["activity"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Atividades na home",
+        "description": "Para o estudante e o administrador, vai aparecer as atividades com cada matéria na sua propria coluna no front, mas para os estudantes, apenas as atividades que ainda estão válidas para serem respondidas. Para o professor, vai aparecer apenas suas atividades.",
+        "responses": {
+          "200": {
+            "description": "OBSERVAÇÃO: O OBJECTO ABAIXO, VEM EM UM ARRAY, COM VÁRIOS OBJETOS PARECIDOS",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/Activity_Home"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Activity_Create": {
+      "type": "object",
+      "required": [
+        "title",
+        "description",
+        "classrooms",
+        "activity",
+        "dateExpiration",
+        "type"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "example": "Como fazer equação"
+        },
+        "description": {
+          "type": "string",
+          "example": "Essa atividade aborda sobre os tipos de equações..."
+        },
+        "classroom": {
+          "type": "array",
+          "example": ["1-a","1-b"]
+        },
+        "activity": {
+          "type": "string",
+          "example": "{Aqui será a atividade}"
+        },
+        "dateExpiration": {
+          "type": "string",
+          "format": "date",
+          "example": "2023-03-24T23:13:00.000Z"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["Atividade", "Tarefa", "Trabalho"]
+        },
+        "previous_points": {
+          "type": "number"
+        }
+      }
+    },
+    "Activity_Response_With_Answers": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Activity_Create"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "Teacher": {
+              "$ref": "#/definitions/Teacher"
+            }
+          }
+        },
+        {
+          "type": "array",
+          "properties": {
+            "answered_activities": {
+              "items": {
+                "$ref": "#/definitions/AnswerActivity"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "subject": {
+              "$ref": "#/definitions/Subject"
+            }
+          }
+        }
+      ]
+    },
+    "Activity_Response_Without_Answers": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Activity_Create"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "Teacher": {
+              "$ref": "#/definitions/Teacher"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "subject": {
+              "$ref": "#/definitions/Subject"
+            }
+          }
+        }
+      ]
+    },
+    "Activity_Home_Student": {
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "nameSubject": {
+              "type": "string",
+              "example": "Historia"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "activitys": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Activity_Response_Without_Answers"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "Activity_Home": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/Activity_Home_Student"
+        },
+        {
+          "$ref": "#/definitions/Activity_Response_Without_Answers"
+        }
+      ]
+    },
+    "AnswerActivity": {
+      "type": "object",
+      "required": [
+        "answer"
+      ],
+      "properties": {
+        "answer": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "string"
+        },
+        "note_of_teacher": {
+          "type": "string"
+        },
+        "Student": {
+          "$ref": "#/definitions/Student"
+        }
+      }
+    },
+    "Teacher": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "classroom": {
+          "type": "array",
+          "example": ["1-a","1-b"]
+        },
+        "subject": {
+          "$ref": "#/definitions/Subject"
+        },
+        "user": {
+          "$ref": "#/definitions/User"
+        }
+      }
+    },
+    "Student": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "classroom": {
+          "type": "string"
+        },
+        "points": {
+          "type": "array",
+          "example": [{"points": 10, "subjectName": "Portugues"}]
+        },
+        "user": {
+          "$ref": "#/definitions/User"
+        }
+      }
+    },
+    "Subject": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "securitySchemes": {
+    "bearerAuth": {
+      "description": "Autenticação da API",
+      "type": "http",
+      "scheme": "bearer",
+      "bearerFormat": "JWT",
+      "tokenUrl": "http://localhost:3245"
+    }
+  }
+}

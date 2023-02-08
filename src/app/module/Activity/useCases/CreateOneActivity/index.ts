@@ -20,6 +20,7 @@ export default async function CreateOneActivity({
     || !description
     || !activity
     || !dateExpiration
+    || !type
   ) throw new AppError('Está faltando algum campo!');
 
   const findTeacher = await TeacherRespository.findId(teacherId as string);
