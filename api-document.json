@@ -19,6 +19,10 @@
       "description": "Responsável por adicionar novos usuários na organização - Estudantes/Professores"
     },
     {
+      "name": "Auth",
+      "description": "Responsável pela autenticação da aplicação"
+    },
+    {
       "name": "Activity",
       "description": "Responsável por criar e mostrar infos sobre atividades"
     }
@@ -136,183 +140,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/definitions/Register_Response_ActiveTeacherByMail_400"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/createActivity": {
-      "post": {
-        "tags": ["Activity"],
-        "security": [{ "bearerAuth": [] }],
-        "summary": "Cria uma atividade do zero",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/definitions/Activity_Create"
-              }
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "teacherId",
-            "in": "header",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "subjectId",
-            "in": "header",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Atividade Criada"
-          },
-          "400": {
-            "description": "Se estiver faltando algum campo, o professor recebe esse erro. {Está faltando algum campo!}"
-          }
-        }
-      }
-    },
-    "/createActivityWithDraft/:idDraft": {
-      "post": {
-        "tags": ["Activity"],
-        "security": [{ "bearerAuth": [] }],
-        "summary": "Cria uma atividade com informações de um rascunho",
-        "description": "Depois de criar uma atividade, o rascunho é deletado",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/definitions/Activity_Create"
-              }
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "idDraft",
-            "in": "query",
-            "description": "ID de algum rascunho",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "teacherId",
-            "in": "header",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "subjectId",
-            "in": "header",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Atividade Criada"
-          },
-          "400": {
-            "description": "Se estiver faltando algum campo, o professor recebe esse erro. {Está faltando algum campo!}"
-          }
-        }
-      }
-    },
-    "/getUniqueById/:id": {
-      "get": {
-        "tags": ["Activity"],
-        "security": [{ "bearerAuth": [] }],
-        "summary": "Busca as informações de uma única atividade",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "query",
-            "description": "ID de alguma atividade",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "classroomUser",
-            "in": "header",
-            "required": true,
-            "type": "string",
-            "description": "Se o usuário for um estudante, o tipo vai ser uma string, se for admin/professor, vai ser um array"
-          },
-          {
-            "name": "typeUser",
-            "in": "header",
-            "required": true,
-            "type": "string",
-            "enum": ["admin", "student", "teacher"]
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/definitions/Activity_Response_With_Answers"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Se o usuário que estiver querendo ver a atividade for estudante, e a sala do estudante não tiver na lista de salas que o professor mandou a atividade, ele recebe esse erro. {Você não pode visualizar está atividade!}"
-          }
-        }
-      }
-    },
-    "/getHomeActivities": {
-      "get": {
-        "tags": ["Activity"],
-        "security": [{ "bearerAuth": [] }],
-        "summary": "Atividades na home",
-        "description": "Para o estudante e o administrador, vai aparecer as atividades com cada matéria na sua propria coluna no front, mas para os estudantes, apenas as atividades que ainda estão válidas para serem respondidas. Para o professor, vai aparecer apenas suas atividades.",
-        "parameters": [
-          {
-            "name": "classroomUser",
-            "in": "header",
-            "required": true,
-            "type": "string",
-            "description": "Se o usuário for um estudante, o tipo vai ser uma string, se for admin/professor, vai ser um array"
-          },
-          {
-            "name": "typeUser",
-            "in": "header",
-            "required": true,
-            "type": "string",
-            "enum": ["admin", "student", "teacher"]
-          },
-          {
-            "name": "teacherId",
-            "in": "header",
-            "required": false,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OBSERVAÇÃO: O OBJECTO ABAIXO, VEM EM UM ARRAY, COM VÁRIOS OBJETOS PARECIDOS",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "response": {
-                      "items": {
-                        "$ref": "#/definitions/Activity_Home"
-                      }
-                    }
-                  }
                 }
               }
             }
@@ -513,9 +340,265 @@
           }
         }
       }
+    },
+    "/login": {
+      "post": {
+        "tags": ["Auth"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Autenticação na aplicação",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "required": true
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "required": true,
+                    "example": "*******"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "findUser": {
+                      "$ref": "#/definitions/Auth_Login"
+                    },
+                    "token": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Email ou senha está incorreta!"
+          }
+        }
+      }
+    },
+    "/createActivity": {
+      "post": {
+        "tags": ["Activity"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Cria uma atividade do zero",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/definitions/Activity_Create"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "teacherId",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "subjectId",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Atividade Criada"
+          },
+          "400": {
+            "description": "Se estiver faltando algum campo, o professor recebe esse erro. {Está faltando algum campo!}"
+          }
+        }
+      }
+    },
+    "/createActivityWithDraft/:idDraft": {
+      "post": {
+        "tags": ["Activity"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Cria uma atividade com informações de um rascunho",
+        "description": "Depois de criar uma atividade, o rascunho é deletado",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/definitions/Activity_Create"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "idDraft",
+            "in": "query",
+            "description": "ID de algum rascunho",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "teacherId",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "subjectId",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Atividade Criada"
+          },
+          "400": {
+            "description": "Se estiver faltando algum campo, o professor recebe esse erro. {Está faltando algum campo!}"
+          }
+        }
+      }
+    },
+    "/getUniqueById/:id": {
+      "get": {
+        "tags": ["Activity"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Busca as informações de uma única atividade",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "ID de alguma atividade",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "classroomUser",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Se o usuário for um estudante, o tipo vai ser uma string, se for admin/professor, vai ser um array"
+          },
+          {
+            "name": "typeUser",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "enum": ["admin", "student", "teacher"]
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/Activity_Response_With_Answers"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Se o usuário que estiver querendo ver a atividade for estudante, e a sala do estudante não tiver na lista de salas que o professor mandou a atividade, ele recebe esse erro. {Você não pode visualizar está atividade!}"
+          }
+        }
+      }
+    },
+    "/getHomeActivities": {
+      "get": {
+        "tags": ["Activity"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Atividades na home",
+        "description": "Para o estudante e o administrador, vai aparecer as atividades com cada matéria na sua propria coluna no front, mas para os estudantes, apenas as atividades que ainda estão válidas para serem respondidas. Para o professor, vai aparecer apenas suas atividades.",
+        "parameters": [
+          {
+            "name": "classroomUser",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Se o usuário for um estudante, o tipo vai ser uma string, se for admin/professor, vai ser um array"
+          },
+          {
+            "name": "typeUser",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "enum": ["admin", "student", "teacher"]
+          },
+          {
+            "name": "teacherId",
+            "in": "header",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OBSERVAÇÃO: O OBJECTO ABAIXO, VEM EM UM ARRAY, COM VÁRIOS OBJETOS PARECIDOS",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "response": {
+                      "items": {
+                        "$ref": "#/definitions/Activity_Home"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
+    "Auth_Login": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "organizationId": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["student", "teacher", "admin"]
+        },
+        "type_model_student": {
+          "type": "object"
+        },
+        "type_model_teacher": {
+          "type": "object"
+        }
+      }
+    },
     "Activity_Create": {
       "type": "object",
       "required": [

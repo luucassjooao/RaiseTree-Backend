@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import newAuthRouter from './auth';
 import newAnswerActivityRouter from './answerActivity';
 import newDraftRouter from './draft';
 import subjectRouter from './subject';
@@ -9,13 +8,14 @@ import redisRoutes from './redis/redis.routes';
 import activityRouter from './activity.routes';
 import registerRouter from './register.routes';
 import staticRouter from './staticUser.routes';
+import authRouter from './auth.routes';
 
 const routes = Router();
 
 routes.use('/api', registerRouter);
 routes.use('/api', subjectRouter);
 routes.use('/api', staticRouter);
-routes.use('/api', newAuthRouter);
+routes.use('/api', authRouter);
 routes.use('/api', activityRouter);
 routes.use('/api', newAnswerActivityRouter);
 routes.use('/api', newDraftRouter);
