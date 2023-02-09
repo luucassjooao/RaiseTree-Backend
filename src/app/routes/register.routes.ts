@@ -1,13 +1,13 @@
 import { Router } from 'express';
-import RegisterController from '../../module/Register/Controller';
+import RegisterController from '../module/Register/Controller';
 
-const newRegisterRouter = Router();
+const registerRouter = Router();
 
-newRegisterRouter
+registerRouter
   .post('/sendEmailForRegister', RegisterController.sendMailForRegister);
-newRegisterRouter
+registerRouter
   .post('/activeUserWithCode', RegisterController.registerWithCode);
-newRegisterRouter
+registerRouter
   .post('/activeTeacher', RegisterController.registerTeacher);
 
-export default newRegisterRouter;
+export default registerRouter;

@@ -11,11 +11,134 @@
   },
   "tags": [
     {
+      "name": "register",
+      "description": "Responsável pelos registros de usuários/organização"
+    },
+    {
       "name": "activity",
       "description": "Responsável por criar e mostrar infos sobre atividades"
     }
   ],
   "paths": {
+    "/sendEmailForRegister": {
+      "post": {
+        "tags": ["register"],
+        "summary": "Manda um email para o usuário",
+        "description": "Se for um admin criando uma organização, manda o email com dele e informações sobre a organização, se for estudante ou professor, manda algumas informações. Ambos os casos, mandamos um token JWT com as informações",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/definitions/Register"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Verifique seu email para ativar sua conta!"
+          },
+          "400": {
+            "description": "O erro pode ser por causa de umas dessas causas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/Register_Response_400"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "O erro pode ser por causa de umas dessas causas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/Register_Response_404"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/activeUserWithCode": {
+      "post": {
+        "tags": ["register"],
+        "summary": "Registrando o usuário/organização",
+        "description": "Quando o usuário clica no botão/link do email que mandamos pra ele, ele é redirecionado para uma página no front, onde o token é enviado na url, automaticamente esse token é mandado para o back, e se tiver tudo certo, o usuário é registrado. No caso do admin, a organização também é criada",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "activeToken": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Você agora está registrado(a)!"
+          },
+          "400": {
+            "description": "O erro pode ser por causa de umas dessas causas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/Register_Response_ActiveWithToken_400"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/activeTeacher": {
+      "post": {
+        "tags": ["register"],
+        "summary": "Uma rota especial para o professor se cadastrar",
+        "description": "Quando o admin estiver adicionando os usuários que podem fazer parte da sua organização, na parte dos professores, ele pode colocar o email do professor em questão, no email desse professor, quando ele clicar no botão/link, ele vai ser redirecionado para uma página que ele vai preencher uma senha, e escolher qual sua matéria, sem precisar ele fazer o registro como foi descrito na rota `/sendEmailForRegister`, e quando ele tiver no front e fazer o submit, vai ser enviado para o back, a senha, a matéria e o token, que contém um objeto com suas infos",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "activeToken": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "subjectId": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Professor registrado!"
+          },
+          "400": {
+            "description": "O erro pode ser por causa de umas dessas causas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/Register_Response_ActiveTeacherByMail_400"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/createActivity": {
       "post": {
         "tags": ["activity"],
@@ -353,6 +476,161 @@
           "type": "string"
         }
       }
+    },
+    "Register": {
+      "type": "object",
+      "properties": {
+        "organizationName": {
+          "type": "string",
+          "example": "Escola Muito Seria Estadual",
+          "description": "Nome da organização. Essa info vai ser mandada apenas se for uma admin criando uma organização"
+        },
+        "organizationClassroom": {
+          "type": "array",
+          "example": ["1-a","1-b"],
+          "description": "Salas/turmas que a organização tem. Essa info vai ser mandada apenas se for uma admin criando uma organização"
+        },
+        "name": {
+          "type": "string",
+          "example": "Joao",
+          "description": "Aqui vai ser o nome do aluno/professor ou do admin que estiver criando uma organização"
+        },
+        "email": {
+          "type": "string",
+          "example": "joao@gmail.com",
+          "description": "Aqui vai ser o email do aluno/professor ou do admin que estiver criando a organização"
+        },
+        "password": {
+          "type": "string",
+          "description": "Aqui vai ser a senha do aluno/professor ou do admin que estiver criando uma organização."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["admin", "teacher", "student"],
+          "description": "O tipo do usuário"
+        },
+        "subjectId": {
+          "type": "string",
+          "description": "Se o usuário for professor/admin, essa propriedade vai vim com um id de uma matéria"
+        },
+        "firstContact": {
+          "type": "boolean",
+          "description": "Se for um admin criando uma organização, aqui vai vim true"
+        },
+        "code": {
+          "type": "string",
+          "description": "Se o usuário for um estudante/professor, ele vai digitar o códdigo que a organização deu para eles. No caso do estudante, provávelmente será seu CPF, para o professor um UUID. No caso do admin, um UUID é criado automaticamente antes dele ser registrado no banco"
+        }
+      }
+    },
+    "Register_Response_400": {
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "Este email já está em uso!": {
+              "type": "string",
+              "example": "Essa mensagem vai ser mostrada quando o usuário ele tentar se registrar com um email já existente no banco de dados"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "Já existe uma organização com este nome!": {
+              "type": "string",
+              "example": "Quando um admin estiver criando sua organização, e já tiver um organização com o mesmo nome, aparecerá está mensagem"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "O formato do seu código é invalido!": {
+              "type": "string",
+              "example": "Quando um professor inserir um código que não tiver um formato do UUID, vai aparecer este error"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "Usuario já está cadastrado!": {
+              "type": "string",
+              "example": "Quando um usuário for se cadastrar, mas já existe usuários cadastrados com aquelas infos"
+            }
+          }
+        }
+      ]
+    },
+    "Register_Response_404": {
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "Este codígo não está valido!": {
+              "type": "string",
+              "example": "Se não encontrar o código no banco, aparece este erro"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "Já existe uma organização com este nome!": {
+              "type": "string",
+              "example": "Quando um admin estiver criando sua organização, e já tiver um organização com o mesmo nome, aparecerá está mensagem"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "Usuario não está pré-cadastrado. Verifique com seu coordenador!": {
+              "type": "string",
+              "example": "Quando usuário vai fazer seu cadastro, mas ele ainda não foi pré-cadastrado"
+            }
+          }
+        }
+      ]
+    },
+    "Register_Response_ActiveWithToken_400": {
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "Informações Inválidas. Faça o registro novamente!": {
+              "type": "string",
+              "example": "Essa mensagem vai ser mostrada quando no token não tiver um objeto com informações do usuário"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "A data do email expirou! Faça o registro novamente!": {
+              "type": "string",
+              "example": "O JWT tem a duração de 15 minutos, passando esse tempo, o email fica inválido"
+            }
+          }
+        }
+      ]
+    },
+    "Register_Response_ActiveTeacherByMail_400": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Register_Response_ActiveWithToken_400"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "Ouve algum error! Verifique com o coordenador!": {
+              "type": "string",
+              "example": "Junto com as infos que forem mandadas, será mandada um código, se o código não estiver na tabela de StaticUser, vai aparecer este erro"
+            }
+          }
+        }
+      ]
     },
     "User": {
       "type": "object",

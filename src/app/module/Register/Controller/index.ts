@@ -20,7 +20,7 @@ class RegisterController {
       code,
     } = request.body;
 
-    const token = await SendMailForRegister(
+    await SendMailForRegister(
       organizationName,
       organizationClassrooms,
       name,
@@ -32,7 +32,7 @@ class RegisterController {
       code,
     );
 
-    return response.status(200).json({ message: 'Verifique seu email para ativar sua conta!', token });
+    return response.status(200).json({ message: 'Verifique seu email para ativar sua conta!' });
   }
 
   async registerWithCode(
@@ -41,9 +41,9 @@ class RegisterController {
   ): Promise<Response> {
     const { activeToken } = request.body;
 
-    const create = await ActivePersonAndOrganization(activeToken);
+    await ActivePersonAndOrganization(activeToken);
 
-    return response.status(201).json({ message: 'Você agora está registrado(a)!', create });
+    return response.status(201).json({ message: 'Você agora está registrado(a)!' });
   }
 
   async registerTeacher(

@@ -77,10 +77,10 @@ export default async function SendMailForRegister(
   const findUserByCode = await UserRepository.findCode(code);
 
   const findStaticUserByCode = await StaticUserRepository.findCode(code);
-  if (!findStaticUserByCode) throw new AppError('Este codígo não está valido!');
+  if (!findStaticUserByCode) throw new AppError('Este codígo não está valido!', 404);
 
   if (!findStaticUserByCode && findUserByCode) throw new AppError('Usuario já está cadastrado!');
-  if (!findStaticUserByCode && !findUserByCode) throw new AppError('Usuario não está pré-cadastrado. Verifique com seu coordenador!');
+  if (!findStaticUserByCode && !findUserByCode) throw new AppError('Usuario não está pré-cadastrado. Verifique com seu coordenador!', 404);
 
   const hashedPassword = await hash(password, 10);
 
@@ -102,12 +102,10 @@ export default async function SendMailForRegister(
   const activeToken = generateActiveToken({ infosToken });
   const url = `${process.env.BASE_URL}/active?token=${activeToken}`;
 
-  const sendEmail = sendMail(
+  return sendMail(
     email,
     'sendMailForFirstTime',
     url,
     'Clique aqui para ativar sua conta!',
   );
-
-  return sendEmail;
 }
