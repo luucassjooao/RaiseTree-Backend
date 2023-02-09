@@ -11,18 +11,22 @@
   },
   "tags": [
     {
-      "name": "register",
+      "name": "Register",
       "description": "Responsável pelos registros de usuários/organização"
     },
     {
-      "name": "activity",
+      "name": "StaticUser",
+      "description": "Responsável por adicionar novos usuários na organização - Estudantes/Professores"
+    },
+    {
+      "name": "Activity",
       "description": "Responsável por criar e mostrar infos sobre atividades"
     }
   ],
   "paths": {
     "/sendEmailForRegister": {
       "post": {
-        "tags": ["register"],
+        "tags": ["Register"],
         "summary": "Manda um email para o usuário",
         "description": "Se for um admin criando uma organização, manda o email com dele e informações sobre a organização, se for estudante ou professor, manda algumas informações. Ambos os casos, mandamos um token JWT com as informações",
         "requestBody": {
@@ -63,7 +67,7 @@
     },
     "/activeUserWithCode": {
       "post": {
-        "tags": ["register"],
+        "tags": ["Register"],
         "summary": "Registrando o usuário/organização",
         "description": "Quando o usuário clica no botão/link do email que mandamos pra ele, ele é redirecionado para uma página no front, onde o token é enviado na url, automaticamente esse token é mandado para o back, e se tiver tudo certo, o usuário é registrado. No caso do admin, a organização também é criada",
         "requestBody": {
@@ -99,7 +103,7 @@
     },
     "/activeTeacher": {
       "post": {
-        "tags": ["register"],
+        "tags": ["Register"],
         "summary": "Uma rota especial para o professor se cadastrar",
         "description": "Quando o admin estiver adicionando os usuários que podem fazer parte da sua organização, na parte dos professores, ele pode colocar o email do professor em questão, no email desse professor, quando ele clicar no botão/link, ele vai ser redirecionado para uma página que ele vai preencher uma senha, e escolher qual sua matéria, sem precisar ele fazer o registro como foi descrito na rota `/sendEmailForRegister`, e quando ele tiver no front e fazer o submit, vai ser enviado para o back, a senha, a matéria e o token, que contém um objeto com suas infos",
         "requestBody": {
@@ -141,7 +145,7 @@
     },
     "/createActivity": {
       "post": {
-        "tags": ["activity"],
+        "tags": ["Activity"],
         "security": [{ "bearerAuth": [] }],
         "summary": "Cria uma atividade do zero",
         "requestBody": {
@@ -179,7 +183,7 @@
     },
     "/createActivityWithDraft/:idDraft": {
       "post": {
-        "tags": ["activity"],
+        "tags": ["Activity"],
         "security": [{ "bearerAuth": [] }],
         "summary": "Cria uma atividade com informações de um rascunho",
         "description": "Depois de criar uma atividade, o rascunho é deletado",
@@ -225,7 +229,7 @@
     },
     "/getUniqueById/:id": {
       "get": {
-        "tags": ["activity"],
+        "tags": ["Activity"],
         "security": [{ "bearerAuth": [] }],
         "summary": "Busca as informações de uma única atividade",
         "parameters": [
@@ -235,6 +239,20 @@
             "description": "ID de alguma atividade",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "classroomUser",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Se o usuário for um estudante, o tipo vai ser uma string, se for admin/professor, vai ser um array"
+          },
+          {
+            "name": "typeUser",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "enum": ["admin", "student", "teacher"]
           }
         ],
         "responses": {
@@ -255,17 +273,240 @@
     },
     "/getHomeActivities": {
       "get": {
-        "tags": ["activity"],
+        "tags": ["Activity"],
         "security": [{ "bearerAuth": [] }],
         "summary": "Atividades na home",
         "description": "Para o estudante e o administrador, vai aparecer as atividades com cada matéria na sua propria coluna no front, mas para os estudantes, apenas as atividades que ainda estão válidas para serem respondidas. Para o professor, vai aparecer apenas suas atividades.",
+        "parameters": [
+          {
+            "name": "classroomUser",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Se o usuário for um estudante, o tipo vai ser uma string, se for admin/professor, vai ser um array"
+          },
+          {
+            "name": "typeUser",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "enum": ["admin", "student", "teacher"]
+          },
+          {
+            "name": "teacherId",
+            "in": "header",
+            "required": false,
+            "type": "string"
+          }
+        ],
         "responses": {
           "200": {
             "description": "OBSERVAÇÃO: O OBJECTO ABAIXO, VEM EM UM ARRAY, COM VÁRIOS OBJETOS PARECIDOS",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/definitions/Activity_Home"
+                  "type": "object",
+                  "properties": {
+                    "response": {
+                      "items": {
+                        "$ref": "#/definitions/Activity_Home"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/createOneStaticUser": {
+      "post": {
+        "tags": ["StaticUser"],
+        "summary": "Admin cria UM novo usuário",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/definitions/StaticUser"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "${Nome do Usuário aqui} adicionado com sucesso!"
+          },
+          "400": {
+            "description": "O erro pode ser por causa de umas dessas causas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/StaticUser_Response_400"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/createManyPeoples": {
+      "post": {
+        "tags": ["StaticUser"],
+        "summary": "Admin cria varios novos usuários manualmente pelo front-end",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "peoples": {
+                    "items": {
+                      "$ref": "#/definitions/StaticUser_ManyPeoples"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Pessoas Criadas!"
+          },
+          "400": {
+            "description": "O erro pode ser por causa de umas dessas causas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/StaticUser_Response_ManyPeoples_400"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "O erro pode ser por causa de umas dessas causas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Ouve um erro! Tente novamente!": {
+                      "type": "string",
+                      "example": "Antes de fazer a transaction no BD, busca a organização, e se por algum motivo der errado, essa mensagem aparece"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/createPeoplesBySheet/:sheetId/:typeOfPeoples": {
+      "post": {
+        "tags": ["StaticUser"],
+        "summary": "Admin cria varios novos usuários por uma planilha, pelo Google Sheets",
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "classrooms",
+            "in": "header",
+            "required": true,
+            "type": "array"
+          },
+          {
+            "name": "sheetId",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "typeOfPeoples",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "enum": ["student", "teacher"]
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Pessoas Criadas!"
+          },
+          "400": {
+            "description": "O erro pode ser por causa de umas dessas causas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/StaticUser_Response_ManyPeoples_BySheets_400"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/findallpeoplesstaticUser": {
+      "get": {
+        "tags": ["StaticUser"],
+        "summary": "Admin consegue visualizar pessoas que faltão entrar na sua organização",
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "response": {
+                      "items": {
+                        "$ref": "#/definitions/StaticUser_Reponse_FindPeoples_200"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Não existe pessoas para fazerem registro na sua organização!"
+                    }
+                  }
                 }
               }
             }
@@ -476,6 +717,184 @@
           "type": "string"
         }
       }
+    },
+    "StaticUser": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "classroom": {
+          "type": "array",
+          "example": []
+        },
+        "code": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["student", "teacher"]
+        }
+      }
+    },
+    "StaticUser_ManyPeoples": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/StaticUser"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "string",
+              "description": "O email vai vim preenchido apenas se o tipo do usuário for teacher"
+            }
+          }
+        }
+      ]
+    },
+    "StaticUser_Reponse_FindPeoples_200": {
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["student", "teacher"]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "peoples": {
+              "items": {
+                "$ref": "#/definitions/StaticUser"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "StaticUser_Response_400": {
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "Este CPF já está em uso!": {
+              "type": "string",
+              "example": "Essa mensagem vai ser mostrada quando o admin colocar um CPF para o estudante que já está cadastrado na tabela StaticUser"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "Estudante já registrado!": {
+              "type": "string",
+              "example": "Essa mensagem vai ser mostrada quando o admin tenta criar um estudante que já está registrado na table InfosUser"
+            }
+          }
+        }
+      ]
+    },
+    "StaticUser_Response_ManyPeoples_400": {
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "O CPF: ${CPF DO ESTUDANTE} já está cadastrado em uma pessoa fora da sua organização, verifique com o estudante: ${NOME DO ESTUDANTE}!": {
+              "type": "string",
+              "example": "Essa mensagem vai aparecer quando um CPF já estiver cadastrado em uma organização fora da organização do admin que estiver fazendo o cadastro"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "O estudante ${NOME DO ESTUDANTE}, está com um CPF já cadastrado, em uma pessoa que já está dentro da sua organização!": {
+              "type": "string",
+              "example": "Essa mensagem vai aparecer quando um CPF já estiver cadastrado na propría organização do admin, e ele estiver tentando cadastrar um novo usuário com este CPF"
+            }
+          }
+        }
+      ]
+    },
+    "StaticUser_Response_ManyPeoples_BySheets_400": {
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "Na sua planilha não tem o cabeçalho CPF!": {
+              "type": "string",
+              "example": "Essa mensagem vai aparecer quando na planilha não tiver o cabeçalho CPF - Apenas quando o typeUser for Estudante"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "Na sua planilha não tem o cabeçalho Nome!": {
+              "type": "string",
+              "example": "Essa mensagem vai aparecer quando na planilha não tiver o cabeçalho Nome"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "Na sua planilha não tem o cabeçalho Sala!": {
+              "type": "string",
+              "example": "Essa mensagem vai aparecer quando na planilha não tiver o cabeçalho Sala"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "Na sua planilha não tem o cabeçalho Email!": {
+              "type": "string",
+              "example": "Essa mensagem vai aparecer quando na planilha não tiver o cabeçalho Email - Apenas quando o typeUser for Professor"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "O CPF: ${CPF DO ESTUDANTE} já está cadastrado, verifique com o estudante: ${NOMDE DO ESTUDANTE}!": {
+              "type": "string",
+              "example": "Essa mensagem vai aparecer quando tiver um CPF já cadastrado estiver na planilha"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "O estudante ${NOME DO ESTUDANTE}, está com um CPF já cadastrado, em uma pessoa que já está dentro da sua organização!": {
+              "type": "string",
+              "example": "Essa mensagem vai aparecer quando um CPF já estiver cadastrado na propría organização do admin, e ele estiver tentando cadastrar um novo usuário com este CPF"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "O CPF ${CPF DO ESTUDANTE}, está duplicado": {
+              "type": "string",
+              "example": "Essa mensagem vai aparecer quando um CPF estiver duplicado na planilha"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "O ${typeUser === 'student' ? 'estudante' : 'professor'}, ${NOME DO USUÁRIO}, está com uma sala que não existe na sua organização!": {
+              "type": "string",
+              "example": "Essa mensagem vai aparecer na linha da planillha não tiver uma sala que existe na organização"
+            }
+          }
+        }
+      ]
     },
     "Register": {
       "type": "object",

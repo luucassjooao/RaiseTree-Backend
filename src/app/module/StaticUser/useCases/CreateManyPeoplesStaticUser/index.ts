@@ -57,7 +57,7 @@ export default async function CreateManyPeoplesStaticUser(
   }
 
   const findNameOfOrganization = await OrganizationRepository.findOrganizationById(organizationId);
-  if (!findNameOfOrganization) throw new AppError('Ouve um erro! Tente novamente!');
+  if (!findNameOfOrganization) throw new AppError('Ouve um erro! Tente novamente!', 404);
 
   if (peoplesCreated.length > 0) {
     if (teacherCreated.length > 0) {

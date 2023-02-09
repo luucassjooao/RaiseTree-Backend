@@ -25,7 +25,7 @@ export default async function CreatePeoplesBySheetsStaticUser(
   });
 
   await doc.loadInfo();
-  const sheet = doc.sheetsByTitle['ACESSO PLANILHA RES-TREE'];
+  const sheet = doc.sheetsByTitle['ACESSO PLANILHA RAISE-TREE'];
 
   const rows = await sheet.getRows();
 
@@ -40,6 +40,7 @@ export default async function CreatePeoplesBySheetsStaticUser(
     if (typeOfPeoples === 'student' && row.CPF === undefined) throw new AppError('Na sua planilha não tem o cabeçalho CPF!');
     if (row.Nome === undefined) throw new AppError('Na sua planilha não tem o cabeçalho Nome!');
     if (row.Sala === undefined) throw new AppError('Na sua planilha não tem o cabeçalho Sala!');
+    if (row.Email === undefined) throw new AppError('Na sua planilha não tem o cabeçalho Email!');
 
     const findCpfInStaticUser = await StaticUserRepository.findCode(row.CPF);
     if (
@@ -53,7 +54,7 @@ export default async function CreatePeoplesBySheetsStaticUser(
       && findCpfInUser.organizationId === organizationId
     ) throw new AppError(`O estudante ${row.Nome}, está com um CPF já cadastrado, em uma pessoa que já está dentro da sua organização!`);
 
-    const findClassRoomOfPeople = classroomsOfOrganization
+    const findClassRoomOfPeople = typeOfPeoples === 'student' && classroomsOfOrganization
       .findIndex((sala) => sala === row.Sala);
 
     if (cpfOnRow.includes(row.CPF)) throw new AppError(`O CPF ${row.CPF}, está duplicado`);
@@ -93,7 +94,7 @@ export default async function CreatePeoplesBySheetsStaticUser(
           },
         }),
       );
-    } else throw new AppError(`O ${typeOfPeoples === 'student' ? 'estudante' : 'professor'}, ${row.Nome}, está com uma sala que não existe na sua organização!!`);
+    } else throw new AppError(`O ${typeOfPeoples === 'student' ? 'estudante' : 'professor'}, ${row.Nome}, está com uma sala que não existe na sua organização!`);
   }
 
   if (peoplesAdding.length > 0) {

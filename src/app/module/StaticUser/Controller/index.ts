@@ -13,7 +13,7 @@ class StaticUserController {
       type,
     } = request.body;
 
-    const createUser = await CreateOneStaticUser({
+    await CreateOneStaticUser({
       name,
       classroom,
       code,
@@ -21,17 +21,14 @@ class StaticUserController {
       organizationId: request.user?.organizationId as string,
     });
 
-    return response.status(201).json({ message: `${name} adicionado com sucesso!`, createUser });
+    return response.status(201).json({ message: `${name} adicionado com sucesso!` });
   }
 
   async findAllPeoplesInMyOrganizationstore(
     request: Request,
     response: Response,
   ): Promise<Response> {
-    const { organizationId } = request.params;
-
     const findPeoples = await FindAllPeoplesInMyOrganization(
-      organizationId,
       request.user?.organizationId as string,
     );
 
@@ -49,7 +46,7 @@ class StaticUserController {
       },
     );
 
-    return response.status(201).json({ message: 'Pessoas criadas' });
+    return response.status(201).json({ message: 'Pessoas Criadas!' });
   }
 
   async createPeoplesBySheet(request: Request, response: Response): Promise<Response> {
@@ -57,7 +54,7 @@ class StaticUserController {
 
     const arrayClassroom = request.user?.type_model_teacher?.classrooms.map((sala: string) => sala.split(' | ')[1]) as string[];
 
-    const create = await CreatePeoplesBySheetsStaticUser(
+    await CreatePeoplesBySheetsStaticUser(
       sheetId,
       typeOfPeoples,
       request.user?.organizationId as string,
@@ -65,7 +62,7 @@ class StaticUserController {
       request.user?.type_model_teacher?.classrooms[0].split(' | ')[0] as string,
     );
 
-    return response.status(200).json(create);
+    return response.status(201).json({ message: 'Pessoas Criadas!' });
   }
 }
 

@@ -4,10 +4,7 @@ import StaticUserRepository from '../../repositories/implementation/StaticUserRe
 
 export default async function FindAllPeoplesInMyOrganization(
   organizationId: string,
-  userOrganizationId: string,
 ): Promise<{ type: any; peoples: TStaticUser[]; }[]> {
-  if (userOrganizationId !== organizationId) throw new AppError('Ouve um error ao buscar as pessoas!');
-
   const findPeoples = await StaticUserRepository.findAllPeoplesInMyOrganization(organizationId);
 
   if (!findPeoples) throw new AppError('Não existe pessoas para fazerem registro na sua organização!');
