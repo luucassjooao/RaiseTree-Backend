@@ -17,7 +17,10 @@ class StudentController {
   async addFrequency(request: Request, response: Response) {
     const { frequencyStudents } = request.body;
 
-    await addFrequencyStudent(frequencyStudents);
+    await addFrequencyStudent(
+      frequencyStudents,
+      request.user?.type_model_teacher?.classrooms as string[],
+    );
 
     return response.status(204);
   }

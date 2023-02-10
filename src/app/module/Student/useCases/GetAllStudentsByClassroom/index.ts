@@ -5,16 +5,9 @@ export default async function GetAllStudentsByClassroom(
   classroom: string,
   teacherClassroom: string[],
 ) {
-  if (!teacherClassroom.includes(classroom)) throw new AppError('Voce nao pode ver os alunos dessa sala!');
-  // const keyClassroom = KeyRedisAllClassroomsOfTeacherInfosStudent(classroom);
-
-  // const cachedClassroom = await redis.get(keyClassroom);
-  // if (cachedClassroom) {
-  //   return JSON.parse(cachedClassroom);
-  // }
+  if (!teacherClassroom.includes(classroom)) throw new AppError('Voce não pode ver os alunos dessa sala!');
 
   const getStudents = await StudentRepository.getAllStudentsByClassroom(classroom);
-  // await redis.set(keyClassroom, JSON.stringify(getStudents), 'EX', 600);
 
   return getStudents;
 }

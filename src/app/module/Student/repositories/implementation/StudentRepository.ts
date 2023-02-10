@@ -1,5 +1,6 @@
 import { Prisma } from '@prisma/client';
 import prismaClient from '../../../../prisma';
+import { TUser } from '../../../../prisma/infosUser';
 import { TPoints, TStudent } from '../../../../prisma/student';
 import { IStudentReposiory } from '../IStudentRepository';
 
@@ -41,10 +42,13 @@ class StudentRepository implements IStudentReposiory {
     });
   }
 
-  async findId(id: string): Promise<TStudent | null> {
+  async findId(id: string): Promise<TStudent & { user: TUser } | null> {
     return prismaClient.student.findUnique({
       where: {
         id,
+      },
+      include: {
+        user: true,
       },
     });
   }

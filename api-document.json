@@ -33,6 +33,10 @@
     {
       "name": "Activity",
       "description": "Responsável por criar e mostrar infos sobre atividades"
+    },
+    {
+      "name": "Student",
+      "description": "Responsável pelas manipulações/visualizção dos dados dos estudantes"
     }
   ],
   "paths": {
@@ -646,7 +650,6 @@
         ],
         "responses": {
           "200": {
-            "description": "OBSERVAÇÃO: O OBJECTO ABAIXO, VEM EM UM ARRAY, COM VÁRIOS OBJETOS PARECIDOS",
             "content": {
               "application/json": {
                 "schema": {
@@ -656,6 +659,94 @@
                       "items": {
                         "$ref": "#/definitions/Activity_Home"
                       }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getStudents/:classroom": {
+      "get": {
+        "tags": ["Student"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Busca estudantes de acordo com a sala passada",
+        "parameters": [
+          {
+            "name": "classroom",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "user.type_model_teacher.classrooms",
+            "in": "header",
+            "required": true,
+            "type": "array",
+            "example": ["1-a","1-b"]
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "response": {
+                      "items": {
+                        "$ref": "#/definitions/Student"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Voce não pode ver os alunos dessa sala!"
+          }
+        }
+      }
+    },
+    "/addFrequency": {
+      "patch": {
+        "tags": ["Student"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Cria uma atividade do zero",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "frequencyStudents": {
+                    "$ref": "#/definitions/Student_AddFrequency"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Atividade Criada"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Parece que voce não pode anotar a frequencia dessa sala!": {
+                      "type": "string",
+                      "example": "Essa mensagem aparece quando um professor vai tentar anotar uma frequencia em uma sala que ele não tem acesso"
+                    },
+                    "O aluno ${NOME DO ALUNO} já teve sua presença hoje!": {
+                      "type": "string",
+                      "example": "Essa mensagem vai aparecer quando um aluno já tiver recebido uma frequencia no meesmo dia"
                     }
                   }
                 }
@@ -883,6 +974,20 @@
         },
         "user": {
           "$ref": "#/definitions/User"
+        }
+      }
+    },
+    "Student_AddFrequency": {
+      "type": "object",
+      "properties": {
+        "subjecName": {
+          "type": "string"
+        },
+        "frequency": {
+          "type": "boolean"
+        },
+        "student": {
+          "$ref": "#/definitions/Student"
         }
       }
     },
