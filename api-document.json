@@ -23,6 +23,10 @@
       "description": "Responsável pela autenticação da aplicação"
     },
     {
+      "name": "User",
+      "description": "Responsável pelas manipulações/visualizção dos dados do User"
+    },
+    {
       "name": "Activity",
       "description": "Responsável por criar e mostrar infos sobre atividades"
     }
@@ -388,6 +392,40 @@
           },
           "404": {
             "description": "Email ou senha está incorreta!"
+          }
+        }
+      }
+    },
+    "/profile": {
+      "get": {
+        "tags": ["User"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Pega as informações do usuário",
+        "parameters": [
+          {
+            "name": "user.id",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "findUser": {
+                      "$ref": "#/definitions/Auth_Login"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Usuario não encontrado!"
           }
         }
       }
@@ -1151,8 +1189,7 @@
       "description": "Autenticação da API",
       "type": "http",
       "scheme": "bearer",
-      "bearerFormat": "JWT",
-      "tokenUrl": "http://localhost:3245"
+      "bearerFormat": "JWT"
     }
   }
 }

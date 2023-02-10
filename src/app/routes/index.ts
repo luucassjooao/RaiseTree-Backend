@@ -2,13 +2,13 @@ import { Router } from 'express';
 import newAnswerActivityRouter from './answerActivity';
 import newDraftRouter from './draft';
 import subjectRouter from './subject';
-import newUserRouter from './user';
 import studentRouter from './student';
 import redisRoutes from './redis/redis.routes';
 import activityRouter from './activity.routes';
 import registerRouter from './register.routes';
 import staticRouter from './staticUser.routes';
 import authRouter from './auth.routes';
+import userRouter from './user.routes';
 
 const routes = Router();
 
@@ -19,7 +19,7 @@ routes.use('/api', authRouter);
 routes.use('/api', activityRouter);
 routes.use('/api', newAnswerActivityRouter);
 routes.use('/api', newDraftRouter);
-routes.use('/api', newUserRouter);
+routes.use('/api', userRouter);
 routes.use('/api', studentRouter);
 
 routes.use('/api', redisRoutes);
