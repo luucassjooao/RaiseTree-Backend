@@ -27,6 +27,10 @@
       "description": "Responsável pelas manipulações/visualizção dos dados do User"
     },
     {
+      "name": "Subject",
+      "description": "Responsável pelas manipulações/visualizção dos dados das Máterias"
+    },
+    {
       "name": "Activity",
       "description": "Responsável por criar e mostrar infos sobre atividades"
     }
@@ -426,6 +430,60 @@
           },
           "404": {
             "description": "Usuario não encontrado!"
+          }
+        }
+      }
+    },
+    "/subject": {
+      "post": {
+        "tags": ["Subject"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Cria uma máteria",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "${NOME DA MÁTERIA} foi registrada!"
+          },
+          "400": {
+            "description": "Está materia já está registrada!"
+          }
+        }
+      },
+      "get": {
+        "tags": ["Subject"],
+        "summary": "Busca todas as máterias",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "response": {
+                      "items": {
+                        "$ref": "#/definitions/Subject"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Ouve um error! Tente novamente!"
           }
         }
       }

@@ -14,7 +14,7 @@ class SubjectController {
   async getAllSubjects(request: Request, response: Response): Promise<Response> {
     const get = await getAllSubjects();
 
-    return response.status(201).json(get);
+    return response.status(200).json(get);
   }
 }
 

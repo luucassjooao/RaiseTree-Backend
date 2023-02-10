@@ -6,7 +6,7 @@ import SubjectRepository from '../../repositories/implementation/SubjectReposito
 
 export default async function CreateSubject(name: string): Promise<TSubject> {
   const findSubject = await SubjectRepository.findSubject(name);
-  if (findSubject) throw new AppError('Está materia já está registrada');
+  if (findSubject) throw new AppError('Está materia já está registrada!');
 
   const create = await SubjectRepository.store(name);
 
