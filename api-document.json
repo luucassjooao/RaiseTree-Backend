@@ -41,6 +41,10 @@
     {
       "name": "Draft",
       "description": "Responsável pelas manipulações/visualizção dos dados dos rascunhos"
+    },
+    {
+      "name": "AnswerActivity",
+      "description": "Responsável pelas manipulações/visualizção dos dados das respostas dos estudantes"
     }
   ],
   "paths": {
@@ -877,6 +881,194 @@
           }
         }
       }
+    },
+    "/registerAnswer/:activityId": {
+      "post": {
+        "tags": ["AnswerActivity"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Cria uma resposta em uma atividade",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "answer": {
+                    "type": "string"
+                  },
+                  "subjectName": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "activityId",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "user.type_model_student.id",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "user.type_model_student.classroom",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Resposta salvo!"
+          },
+          "400": {
+            "description": "Pode ser uma dessas causas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Você já fez está atividade!": {
+                      "type": "string",
+                      "example": "Essa mensagem vai aparecer quando o estudante tentar responder uma atividade que ele já respondeu"
+                    },
+                    "Você não pode fazer está atividade!": {
+                      "type": "string",
+                      "example": "Essa mensagem vai aparecer quando o estudante tentar responder uma atividade que a sala dele não foi colocada para fazer essa atividade"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Esta atividade não está disponivel para ser respondida ou não existe!"
+          }
+        }
+      }
+    },
+    "/replyActivityOfStudent/:activityId/:answerId/:studentId": {
+      "patch": {
+        "tags": ["AnswerActivity"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Professor responde a uma resposta de um aluno na sua atividade",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "note": {
+                    "type": "string"
+                  },
+                  "point": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "activityId",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "answerId",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "studentId",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "user.type_model_teacher.subject.name",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Nota registrada!"
+          },
+          "400": {
+            "description": "Você já respondeu este aluno(a)!"
+          },
+          "404": {
+            "description": "Pode ser uma dessas causas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Não foi possivel achar este estudante!": {
+                      "type": "string",
+                      "example": "Essa mensagem vai aparecer quando por algum motivo, o aluno não for encontrado no Banco de Dados"
+                    },
+                    "Não foi possivel achar está atividade!": {
+                      "type": "string",
+                      "example": "Essa mensagem vai aparecer quando por algum motivo, a atividade não for encontrada no Banco de Dados"
+                    },
+                    "Não foi possivel achar está resposta!": {
+                      "type": "string",
+                      "example": "Essa mensagem vai aparecer quando por algum motivo, a resposta do aluno não for encontrada no Banco de Dados"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getAllAnswerAcitivityOfStudent/:studentId": {
+      "get": {
+        "tags": ["AnswerActivity"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Busca todas as respostas que o estudante respondeu",
+        "parameters": [
+          {
+            "name": "studentId",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "user.type_model_teacher.id",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                   "items": {
+                     "$ref": "#/definitions/AnswerActivity_GetAllAnswerOfStudent"
+                   }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -1005,6 +1197,21 @@
         }
       ]
     },
+    "Activity_Response_With_Teacher": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Activity_Create"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "Teacher": {
+              "$ref": "#/definitions/Teacher"
+            }
+          }
+        }
+      ]
+    },
     "Activity_Home_Student": {
       "allOf": [
         {
@@ -1058,10 +1265,28 @@
         "note_of_teacher": {
           "type": "string"
         },
+        "activityId": {
+          "type": "string"
+        },
         "Student": {
           "$ref": "#/definitions/Student"
         }
       }
+    },
+    "AnswerActivity_GetAllAnswerOfStudent": {
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "Activity": {
+              "$ref": "#/definitions/Activity_Response_With_Teacher"
+            }
+          }
+        },
+        {
+          "$ref": "#/definitions/AnswerActivity"
+        }
+      ]
     },
     "Draft": {
       "type": "object",

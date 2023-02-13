@@ -8,7 +8,7 @@ class AnswerActivityController {
     const { activityId } = request.params;
     const { answer, subjectName } = request.body;
 
-    const createAnswer = await CreateOneAnswerActivity(
+    await CreateOneAnswerActivity(
       answer,
       activityId,
       request.user?.type_model_student?.id as string,
@@ -16,7 +16,7 @@ class AnswerActivityController {
       subjectName,
     );
 
-    return response.status(201).json(createAnswer);
+    return response.status(201).json({ message: 'Resposta salva!' });
   }
 
   async replyAnswerOfStudent(request: Request, response: Response): Promise<Response> {

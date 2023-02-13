@@ -12,7 +12,7 @@ export default async function CreateOneAnswerActivity(
   subjectName: string,
 ): Promise<TAnsweredActivity> {
   const findActivity = await ActivityRepository.getUniqueActivityById(activityId);
-  if (!findActivity) throw new AppError('Esta atividade não está disponivel para ser respondida ou não existe!');
+  if (!findActivity) throw new AppError('Esta atividade não está disponivel para ser respondida ou não existe!', 404);
 
   const findStudentOnThisActivity = await AnswerActivityRepository
     .findStudentOnActivity(activityId, studentId);
