@@ -331,13 +331,8 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "response": {
-                      "items": {
-                        "$ref": "#/definitions/StaticUser_Reponse_FindPeoples_200"
-                      }
-                    }
+                  "items": {
+                    "$ref": "#/definitions/StaticUser_Reponse_FindPeoples_200"
                   }
                 }
               }
@@ -482,13 +477,8 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "response": {
-                      "items": {
-                        "$ref": "#/definitions/Subject"
-                      }
-                    }
+                  "items": {
+                    "$ref": "#/definitions/Subject"
                   }
                 }
               }
@@ -661,13 +651,8 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "response": {
-                      "items": {
-                        "$ref": "#/definitions/Activity_Home"
-                      }
-                    }
+                  "items": {
+                    "$ref": "#/definitions/Activity_Home"
                   }
                 }
               }
@@ -701,13 +686,8 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "response": {
-                      "items": {
-                        "$ref": "#/definitions/Student"
-                      }
-                    }
+                  "items": {
+                    "$ref": "#/definitions/Student"
                   }
                 }
               }
@@ -826,13 +806,8 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "response": {
-                      "items": {
-                        "$ref": "#/definitions/Draft"
-                      }
-                    }
+                  "items": {
+                    "$ref": "#/definitions/Draft"
                   }
                 }
               }
