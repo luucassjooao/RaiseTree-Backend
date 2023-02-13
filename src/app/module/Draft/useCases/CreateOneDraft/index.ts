@@ -9,8 +9,13 @@ export default async function CreateOneDraft(
   draft: string,
   userId: string,
 ): Promise<TDraft> {
+  if (
+    !title
+    || !description
+    || !draft
+  ) throw new AppError('Está faltando algum campo!');
   const findUser = await UserRepository.findId(userId);
-  if (!findUser) throw new AppError('Usuario não encontrado!', 404);
+  if (!findUser) throw new AppError('Usuário não encontrado!', 404);
 
   const createDraft = await DraftRepository.store(
     description,

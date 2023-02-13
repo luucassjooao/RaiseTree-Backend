@@ -37,6 +37,10 @@
     {
       "name": "Student",
       "description": "Responsável pelas manipulações/visualizção dos dados dos estudantes"
+    },
+    {
+      "name": "Draft",
+      "description": "Responsável pelas manipulações/visualizção dos dados dos rascunhos"
     }
   ],
   "paths": {
@@ -730,6 +734,15 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "user.type_model_teacher.classrooms",
+            "in": "header",
+            "required": true,
+            "type": "array",
+            "example": ["1-a","1-b"]
+          }
+        ],
         "responses": {
           "201": {
             "description": "Atividade Criada"
@@ -752,6 +765,115 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/createDraft": {
+      "post": {
+        "tags": ["Draft"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Cria um rascunho",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/definitions/Draft"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "user.id",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Rascunho salvo!"
+          },
+          "400": {
+            "description": "Está faltando algum campo!"
+          },
+          "404": {
+            "description": "Usuário não encontrado!"
+          }
+        }
+      }
+    },
+    "/findAllDraftsOfUser": {
+      "get": {
+        "tags": ["Draft"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Busca todos os racunhos daquele usuário",
+        "parameters": [
+          {
+            "name": "user.id",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "response": {
+                      "items": {
+                        "$ref": "#/definitions/Draft"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Você não tem rascunhos!"
+          }
+        }
+      }
+    },
+    "/findDraft/:id": {
+      "get": {
+        "tags": ["Draft"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Busca um rascunho do usuário",
+        "parameters": [
+          {
+            "name": "user.id",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/Draft"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Você não pode ver este rascunho!"
+          },
+          "404": {
+            "description": "Rascunho não encontrado!"
           }
         }
       }
@@ -938,6 +1060,20 @@
         },
         "Student": {
           "$ref": "#/definitions/Student"
+        }
+      }
+    },
+    "Draft": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "draft": {
+          "type": "string"
         }
       }
     },
