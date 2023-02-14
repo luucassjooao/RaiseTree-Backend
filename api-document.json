@@ -737,13 +737,13 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "Parece que voce não pode anotar a frequencia dessa sala!": {
+                    "Parece que voce não pode anotar a frequência dessa sala!": {
                       "type": "string",
-                      "example": "Essa mensagem aparece quando um professor vai tentar anotar uma frequencia em uma sala que ele não tem acesso"
+                      "example": "Essa mensagem aparece quando um professor vai tentar anotar uma frequência em uma sala que ele não tem acesso"
                     },
                     "O aluno ${NOME DO ALUNO} já teve sua presença hoje!": {
                       "type": "string",
-                      "example": "Essa mensagem vai aparecer quando um aluno já tiver recebido uma frequencia no meesmo dia"
+                      "example": "Essa mensagem vai aparecer quando um aluno já tiver recebido uma frequência no meesmo dia"
                     }
                   }
                 }

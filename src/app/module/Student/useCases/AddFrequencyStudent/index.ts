@@ -18,7 +18,7 @@ export default async function addFrequencyStudent(
 
   // eslint-disable-next-line no-restricted-syntax
   for await (const { student, subjectName } of infosStudents) {
-    if (!classroomsOfTeacher.includes(student.classroom)) throw new AppError('Parece que voce não pode anotar a frequencia dessa sala!');
+    if (!classroomsOfTeacher.includes(student.classroom)) throw new AppError('Parece que voce não pode anotar a frequência dessa sala!');
     const findStudent = await StudentRepository.findId(student.id);
     const guardFrequency: any = findStudent?.frequency;
     const findSubject: TFrequency = guardFrequency
