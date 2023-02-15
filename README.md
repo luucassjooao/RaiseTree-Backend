@@ -4,7 +4,16 @@
 O intuito do Raise Tree é ser um novo ciclo nas escolas. Ele é um gerenciador de tarefas escolares que reúne coisas e atividades que na maioria das vezes são feitas em diferentes lugares pelos professores, estudantes e coordenadores/diretores, e junta essas coisa em somente um lugar, economizando tempo e espaço.
 O intuito das ferramentas desenvolvidas, e as que vier a serem desenvolvidas, é facilitar a vida de quem estiver usando.
 
-
+- [Documentação](#documentação)
+- [Stack Utilizada](#stack-utilizada)
+- [Funcionalidades](#funcionalidades)
+- [Roadmap](#roadmap)
+- [Melhorias](#melhorias)
+- [Apêndice](#apêndice)
+- [Referência](#referência)
+- [Variáveis de Ambiente](#variáveis-de-ambiente)
+- [Rodando Localmente](#rodando-localmente)
+- [Autores](#autores)
 
 ## Documentação
 
@@ -45,7 +54,7 @@ Node, Express, Typescript, Prisma, PostgreSQL, Redis
 - Usar uma arquitetura mais profissional
 ## Apêndice
 
-O envio de email, é feito pela [API do Gmail](#Referência).
+O envio de email, é feito pela [API do Gmail](#referência).
 
 ## Referência
 
