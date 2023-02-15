@@ -23,7 +23,7 @@ Node, Express, Typescript, Prisma, PostgreSQL, Redis
     - Visualizar atividades criadas pelos professores
 - Professores
     - Criar atividades
-    - Visualizar respostas dos alunos e responde-lós
+    - Visualizar respostas dos alunos e respondê-los
     - Criar rascunhos
     - Visualizar estudantes por sala e suas informações como: frequência, pontos e quais atividades eles responderão
     - Anotar frequência para os estudantes
@@ -35,9 +35,9 @@ Node, Express, Typescript, Prisma, PostgreSQL, Redis
 - Adicionar algumas integrações. Ex: os professores usarem o ChatGPT para os auxiliarem em novas ideias de atividades
 - Aulas ao vivo
 - Notificações
-- Comunidades. Ex: por sala, por ano(primeira serie, segunda serie...), por escola, apenas de admins, apenas dos professores...
-- Calendario escolar
-- Para os professores, ter um "explore" com a visualizao de atividades que outros professores criarao
+- Comunidades. Ex: por sala, por ano(primeira série, segunda série...), por escola, apenas de admins, apenas dos professores...
+- Calendário escolar
+- Para os professores, ter um "explorer" com a visualização de atividades que outros professores criaram
 
 ## Melhorias
 
