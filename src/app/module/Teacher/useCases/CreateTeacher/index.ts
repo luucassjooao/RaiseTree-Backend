@@ -7,8 +7,8 @@ export default async function CreateTeacher(
   userId: string,
 ): Promise<TTeacher> {
   return TeacherRespository.store({
+    userId,
     classrooms,
     subjectId,
-    userId,
   });
 }

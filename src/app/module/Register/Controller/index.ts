@@ -54,7 +54,7 @@ class RegisterController {
 
     await ActiveTeacherByMail(activeToken, password, subjectId);
 
-    return response.status(201).json({ message: 'Professor registrado!' });
+    return response.status(201).json({ message: 'Professor(a) registrado!' });
   }
 }
 

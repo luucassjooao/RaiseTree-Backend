@@ -11,6 +11,7 @@ class StaticUserController {
       classroom,
       code,
       type,
+      email,
     } = request.body;
 
     await CreateOneStaticUser({
@@ -19,6 +20,7 @@ class StaticUserController {
       code,
       type,
       organizationId: request.user?.organizationId as string,
+      email,
     });
 
     return response.status(201).json({ message: `${name} adicionado com sucesso!` });

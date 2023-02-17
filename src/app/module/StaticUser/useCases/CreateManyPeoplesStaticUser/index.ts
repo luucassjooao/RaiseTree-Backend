@@ -65,7 +65,7 @@ export default async function CreateManyPeoplesStaticUser(
       for await (const infosToken of teacherCreated) {
         const activeToken = generateActiveTokenTeacher({ infosToken });
         const url = `${process.env.BASE_URL}/activeTeacher?token=${activeToken}`;
-        sendMail(
+        await sendMail(
           infosToken.email,
           'sendMailToTeacher',
           url,
