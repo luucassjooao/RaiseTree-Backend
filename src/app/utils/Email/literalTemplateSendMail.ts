@@ -17,6 +17,12 @@ const LiteralTemplateSendMail = {
       <div><a href=${url}>${url}</a></div>
     </div>
   `,
+  failOnSendMailToTeachers: () => `
+    <div style="display: grid; max-width: 600px; margin: auto; border: 8px solid #560bad; padding: 50px 20px; font-size: 110%;">
+      <h2 style="text-align: center; text-transform: uppercase; color: #240046;">Raise Tree</h2>
+      <p style="text-align: center; font-size: 20px;">Olá, o envio de email para os professores deu alguma coisa de errado! De o código que está na página inicial para cada professor, e peça-os para fazer o registro manualmente!</p>
+  </div>
+`,
 };
 
 export default LiteralTemplateSendMail;

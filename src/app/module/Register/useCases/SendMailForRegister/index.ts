@@ -62,12 +62,12 @@ export default async function SendMailForRegister(
     const activeToken = generateActiveToken({ infosToken });
     const url = `${process.env.BASE_URL}/active?token=${activeToken}`;
 
-    const sendEmail = sendMail(
-      email,
-      'sendMailForFirstTime',
+    const sendEmail = sendMail({
+      text: 'Clique aqui para ativar sua conta!',
+      to: email,
+      typeTemplate: 'sendMailForFirstTime',
       url,
-      'Clique aqui para ativar sua conta!',
-    );
+    });
 
     return sendEmail;
   }
@@ -102,10 +102,10 @@ export default async function SendMailForRegister(
   const activeToken = generateActiveToken({ infosToken });
   const url = `${process.env.BASE_URL}/active?token=${activeToken}`;
 
-  return sendMail(
-    email,
-    'sendMailForFirstTime',
+  return sendMail({
+    text: 'Clique aqui para ativar sua conta!',
+    to: email,
+    typeTemplate: 'sendMailForFirstTime',
     url,
-    'Clique aqui para ativar sua conta!',
-  );
+  });
 }

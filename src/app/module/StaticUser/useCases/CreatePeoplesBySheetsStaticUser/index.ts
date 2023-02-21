@@ -1,12 +1,14 @@
 import { Prisma } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import { GoogleSpreadsheet } from 'google-spreadsheet';
+import { QueueData } from '../../../../../lib/Queue';
 import AppError from '../../../../error';
+import { EmailData, emailQueue } from '../../../../jobs/Email';
 import prismaClient from '../../../../prisma';
 import { TStaticUser } from '../../../../prisma/staticUser';
-import sendMail from '../../../../utils/Email/sendMail';
 import { generateActiveTokenTeacher } from '../../../../utils/generateTokens';
 import { SendMailForTeacher } from '../../../../utils/types';
+import OrganizationRepository from '../../../Organization/repositories/implementation/OrganizationRepository';
 import UserRepository from '../../../User/repositories/implementation/UserRepository';
 import StaticUserRepository from '../../repositories/implementation/StaticUserRepository';
 
@@ -16,6 +18,7 @@ export default async function CreatePeoplesBySheetsStaticUser(
   organizationId: string,
   classroomsOfOrganization: string[],
   prefixClassroom: string,
+  emailAdmin: string,
 ): Promise<TStaticUser[] | null> {
   const doc = new GoogleSpreadsheet(sheetId);
 
@@ -99,16 +102,31 @@ export default async function CreatePeoplesBySheetsStaticUser(
 
   if (peoplesAdding.length > 0) {
     if (teacherCreated.length > 0) {
+      const findNameOfOrganization = await OrganizationRepository
+        .findOrganizationById(organizationId);
+      if (!findNameOfOrganization) throw new AppError('Ouve algum error ao enviar o email para os professores!');
+
       // eslint-disable-next-line no-restricted-syntax
       for await (const infosToken of teacherCreated) {
         const activeToken = generateActiveTokenTeacher({ infosToken });
         const url = `${process.env.BASE_URL}/activeTeacher?token=${activeToken}`;
-        sendMail(
-          infosToken.email,
-          'sendMailToTeacher',
-          url,
-          'Clique aqui para ativar sua conta!',
-        );
+
+        const emailTask: QueueData<EmailData> = {
+          data: {
+            emailAdmin,
+            text: 'Clique aqui para ativar sua conta!',
+            to: infosToken.email,
+            typeTemplate: 'sendMailToTeacher',
+            url,
+            organizationName: findNameOfOrganization.name,
+          },
+          options: {
+            attempts: 3,
+            removeOnComplete: true,
+            delay: 800,
+          },
+        };
+        await emailQueue.add(emailTask);
       }
     }
     return prismaClient.$transaction(peoplesAdding);

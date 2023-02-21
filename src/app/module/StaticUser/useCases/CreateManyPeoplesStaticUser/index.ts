@@ -1,9 +1,10 @@
 import { Prisma } from '@prisma/client';
 import { randomUUID } from 'crypto';
+import { QueueData } from '../../../../../lib/Queue';
 import AppError from '../../../../error';
+import { EmailData, emailQueue } from '../../../../jobs/Email';
 import prismaClient from '../../../../prisma';
 import { TStaticUser } from '../../../../prisma/staticUser';
-import sendMail from '../../../../utils/Email/sendMail';
 import { generateActiveTokenTeacher } from '../../../../utils/generateTokens';
 import { SendMailForTeacher, TPeoples } from '../../../../utils/types';
 import OrganizationRepository from '../../../Organization/repositories/implementation/OrganizationRepository';
@@ -11,8 +12,8 @@ import UserRepository from '../../../User/repositories/implementation/UserReposi
 import StaticUserRepository from '../../repositories/implementation/StaticUserRepository';
 
 export default async function CreateManyPeoplesStaticUser(
-  { peoples, organizationId }:
-  { peoples: TPeoples[]; organizationId: string; },
+  { peoples, organizationId, emailAdmin }:
+  { peoples: TPeoples[]; organizationId: string; emailAdmin: string; },
 ): Promise<TStaticUser[] | null> {
   const peoplesCreated: Prisma.Prisma__StaticUserClient<TStaticUser, never>[] = [];
   const teacherCreated: SendMailForTeacher[] = [];
@@ -65,13 +66,23 @@ export default async function CreateManyPeoplesStaticUser(
       for await (const infosToken of teacherCreated) {
         const activeToken = generateActiveTokenTeacher({ infosToken });
         const url = `${process.env.BASE_URL}/activeTeacher?token=${activeToken}`;
-        await sendMail(
-          infosToken.email,
-          'sendMailToTeacher',
-          url,
-          'Clique aqui para ativar sua conta!',
-          findNameOfOrganization.name,
-        );
+
+        const emailTask: QueueData<EmailData> = {
+          data: {
+            emailAdmin,
+            text: 'Clique aqui para ativar sua conta!',
+            to: infosToken.email,
+            typeTemplate: 'sendMailToTeacher',
+            url,
+            organizationName: findNameOfOrganization.name,
+          },
+          options: {
+            attempts: 3,
+            removeOnComplete: true,
+            delay: 800,
+          },
+        };
+        await emailQueue.add(emailTask);
       }
     }
     return prismaClient.$transaction(peoplesCreated);

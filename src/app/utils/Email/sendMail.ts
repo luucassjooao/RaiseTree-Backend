@@ -3,6 +3,7 @@ import 'dotenv/config';
 import { createTransport } from 'nodemailer';
 import { OAuth2Client } from 'google-auth-library';
 import LiteralTemplateSendMail from './literalTemplateSendMail';
+import { TEmail } from '../types';
 
 const OAUTH_PLAYGROUND = 'https://developers.google.com/oauthplayground';
 
@@ -11,13 +12,13 @@ const CLIENT_SECRET = `${process.env.MAIL_CLIENT_SECRET}`;
 const REFRESH_TOKEN = `${process.env.MAIL_REFRESH_TOKEN}`;
 const SENDER_MAIL = `${process.env.SENDER_EMAIL_ADDRESS}`;
 
-export default async function sendMail(
-  to: string,
-  typeTemplate: 'sendMailForFirstTime' | 'sendMailToTeacher',
-  url: string,
-  text: string,
-  organizationName?: string,
-) {
+export default async function sendMail({
+  to,
+  typeTemplate,
+  url,
+  text,
+  organizationName,
+}: TEmail) {
   const oAuth2Client = new OAuth2Client(
     CLIENT_ID,
     CLIENT_SECRET,

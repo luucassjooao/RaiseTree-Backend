@@ -1,8 +1,8 @@
 import { randomUUID } from 'crypto';
-import { SentMessageInfo } from 'nodemailer';
+import { QueueData } from '../../../../../lib/Queue';
 import AppError from '../../../../error';
+import { EmailData, emailQueue } from '../../../../jobs/Email';
 import { TStaticUser } from '../../../../prisma/staticUser';
-import sendMail from '../../../../utils/Email/sendMail';
 import { generateActiveTokenTeacher } from '../../../../utils/generateTokens';
 import { SendMailForTeacher } from '../../../../utils/types';
 import OrganizationRepository from '../../../Organization/repositories/implementation/OrganizationRepository';
@@ -11,6 +11,7 @@ import StaticUserRepository from '../../repositories/implementation/StaticUserRe
 
 interface TChooseOne extends Omit<TStaticUser, 'id' | 'createdAt'> {
   email: string | undefined;
+  emailAdmin: string;
 }
 
 export default async function CreateOneStaticUser({
@@ -20,7 +21,8 @@ export default async function CreateOneStaticUser({
   type,
   organizationId,
   email,
-}: TChooseOne): Promise<TStaticUser | SentMessageInfo | null> {
+  emailAdmin,
+}: TChooseOne): Promise<TStaticUser> {
   const findUserByCodeInUsers = await UserRepository.findCode(type === 'student' ? code : '');
   const findUserByNameInStaticUser = await StaticUserRepository.findName(name);
 
@@ -52,13 +54,23 @@ export default async function CreateOneStaticUser({
 
     const activeToken = generateActiveTokenTeacher({ infosToken });
     const url = `${process.env.BASE_URL}/activeTeacher?token=${activeToken}`;
-    return sendMail(
-      email as string,
-      'sendMailToTeacher',
-      url,
-      'Clique aqui para ativar sua conta!',
-      findNameOfOrganization.name,
-    );
+
+    const emailTask: QueueData<EmailData> = {
+      data: {
+        emailAdmin,
+        text: 'Clique aqui para ativar sua conta!',
+        to: infosToken.email,
+        typeTemplate: 'sendMailToTeacher',
+        url,
+        organizationName: findNameOfOrganization.name,
+      },
+      options: {
+        attempts: 3,
+        removeOnComplete: true,
+        delay: 800,
+      },
+    };
+    await emailQueue.add(emailTask);
   }
   return createUserInStaticUser;
 }

@@ -21,6 +21,7 @@ class StaticUserController {
       type,
       organizationId: request.user?.organizationId as string,
       email,
+      emailAdmin: request.user?.email as string,
     });
 
     return response.status(201).json({ message: `${name} adicionado com sucesso!` });
@@ -45,6 +46,7 @@ class StaticUserController {
       {
         peoples: request.body.peoples,
         organizationId: request.user?.organizationId as string,
+        emailAdmin: request.user?.email as string,
       },
     );
 
@@ -62,6 +64,7 @@ class StaticUserController {
       request.user?.organizationId as string,
       arrayClassroom,
       request.user?.type_model_teacher?.classrooms[0].split(' | ')[0] as string,
+      request.user?.email as string,
     );
 
     return response.status(201).json({ message: 'Pessoas Criadas!' });
