@@ -3,10 +3,13 @@ import { verify } from 'jsonwebtoken';
 import AppError from '../../../../error';
 import { TUser } from '../../../../prisma/infosUser';
 import { TDecodedToken } from '../../../../utils/generateTokens';
+import NotifyRepository from '../../../Notify/repositories/implementation/NotifyRepository';
 import CreateOrganization from '../../../Organization/useCases/CreateOrganization';
 import StaticUserRepository from '../../../StaticUser/repositories/implementation/StaticUserRepository';
 import CreateStudent from '../../../Student/useCases/CreateStudent';
+import SubjectRepository from '../../../Subject/repositories/implementation/SubjectRepository';
 import CreateTeacher from '../../../Teacher/useCases/CreateTeacher';
+import UserRepository from '../../../User/repositories/implementation/UserRepository';
 import CreateUser from '../../../User/useCases/CreateUser';
 import { TInfosToken } from '../SendMailForRegister';
 
@@ -63,10 +66,25 @@ export default async function ActivePersonAndOrganization(token: string): Promis
     type,
   });
 
+  const findAdmins = await UserRepository.findAdmins(organizationId);
+  const findSubjectName = await SubjectRepository.findSubjectById(subjectId);
+
   if (type === 'teacher') {
     await CreateTeacher(personClassroom as string[], subjectId, createUser.id);
+
+    await NotifyRepository.store(
+      `O professor(a) ${name}, acabou de se registrar!`,
+      `Ele(a) se registrou na máteria: ${findSubjectName?.name}`,
+      findAdmins?.id as string,
+    );
   } if (type === 'student') {
     await CreateStudent(personClassroom as string, createUser.id);
+
+    await NotifyRepository.store(
+      `O aluno(a) ${name}, acabou de se registrar!`,
+      `Ele(a) se registrou, e está na sala ${personClassroom}`,
+      findAdmins?.id as string,
+    );
   }
 
   await StaticUserRepository.deleteById(personStaticUserId);

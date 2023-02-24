@@ -26,8 +26,8 @@ export default async function CreateOneStaticUser({
   const findUserByCodeInUsers = await UserRepository.findCode(type === 'student' ? code : '');
   const findUserByNameInStaticUser = await StaticUserRepository.findName(name);
 
-  if (type === 'student' && code && findUserByNameInStaticUser) throw new AppError('Este CPF já está em uso!');
-  if (type === 'student' && findUserByCodeInUsers) throw new AppError('Estudante já registrado!');
+  if (type === 'student' && findUserByCodeInUsers) throw new AppError('Este CPF já está em uso!');
+  if (type === 'student' && (findUserByNameInStaticUser && findUserByNameInStaticUser.type === 'student')) throw new AppError('Estudante já registrado!');
 
   const codeRandomUUIDTeacher = randomUUID();
 

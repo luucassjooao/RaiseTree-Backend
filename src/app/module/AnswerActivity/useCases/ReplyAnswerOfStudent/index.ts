@@ -1,6 +1,7 @@
 import AppError from '../../../../error';
 import { TAnsweredActivity } from '../../../../prisma/answeredActivity';
 import ActivityRepository from '../../../Activity/repositories/implementation/ActivityRepository';
+import NotifyRepository from '../../../Notify/repositories/implementation/NotifyRepository';
 import StudentRepository from '../../../Student/repositories/implementation/StudentRepository';
 import AnswerActivityRepository from '../../repositories/implementations/AnswerActivityRepository';
 
@@ -27,6 +28,13 @@ export default async function ReplyAnswerOfStudent(
   const updateAnswer = await AnswerActivityRepository
     .replyAnswerOfStudent(note_of_teacher, answerId);
   await StudentRepository.addPointsInStudent(studentId, point, subjectName);
+
+  const findUserByStudentId = await StudentRepository.findId(studentId);
+  await NotifyRepository.store(
+    `O professor(a) ${findActivityById.Teacher?.user.name}, respondeu sua resposta!`,
+    `Na atividade: ${findActivityById.title}, ele te deu ${point} ponto${point > 1 && 's'}!`,
+    findUserByStudentId?.userId as string,
+  );
 
   return updateAnswer;
 }

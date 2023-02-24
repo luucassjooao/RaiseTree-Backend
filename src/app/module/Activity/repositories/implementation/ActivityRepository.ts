@@ -1,5 +1,7 @@
+import { Prisma } from '@prisma/client';
 import prismaClient from '../../../../prisma';
 import { TActivity } from '../../../../prisma/activity';
+import { TUser } from '../../../../prisma/infosUser';
 import { TSubject } from '../../../../prisma/subject';
 import { IActivityRepository } from '../IActivityRepository';
 
@@ -12,10 +14,28 @@ class ActivityRepositories implements IActivityRepository {
 
   async getUniqueActivityById(
     id: string,
-  ): Promise<(TActivity & { subject: TSubject; Teacher: { user: {
-    name: string,
-    id: string,
-  }; } | null; }) | null> {
+  ): Promise<(TActivity & {
+    subject: TSubject;
+    Teacher: {
+        subject: TSubject;
+        user: {
+            id: string;
+            name: string;
+        };
+    } | null;
+    answered_activities: {
+        id: string;
+        createdAt: Date;
+        answer: string;
+        note_of_teacher: string;
+        Student: {
+          id: string;
+          points: Prisma.JsonValue[];
+          classroom: string;
+          user: TUser;
+        } | null;
+    }[];
+}) | null> {
     return prismaClient.activity.findUnique({
       where: {
         id,
