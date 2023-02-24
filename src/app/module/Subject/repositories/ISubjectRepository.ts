@@ -4,5 +4,6 @@ import { TSubject } from '../../../prisma/subject';
 export interface ISubjectRepository {
   store(name: string): Promise<TSubject>;
   findSubject(name: string): Promise<TSubject | null>;
-  getAllSubjects(): Promise<TSubject[] | null>
+  getAllSubjects(): Promise<TSubject[] | null>;
+  findSubjectById(id: string): Promise<TSubject | null>;
 }

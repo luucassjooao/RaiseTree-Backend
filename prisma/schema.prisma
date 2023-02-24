@@ -42,6 +42,7 @@ model InfosUser {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @default(now())
   organizationId String?
+  Notify         Notify[]
 }
 
 model Student {
@@ -113,6 +114,16 @@ model Draft {
   updatedAt   DateTime   @default(now())
   InfosUser   InfosUser? @relation(fields: [infosUserId], references: [id])
   infosUserId String?
+}
+
+model Notify {
+  id          String    @id @unique @default(uuid())
+  title       String
+  description String
+  recipient   InfosUser @relation(fields: [recipientId], references: [id])
+  recipientId String
+  read        Boolean @default(false)
+  createdAt   DateTime  @default(now())
 }
 
 enum TypeUser {

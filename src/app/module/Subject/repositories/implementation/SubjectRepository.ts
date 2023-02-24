@@ -25,6 +25,14 @@ class SubjectRepository implements ISubjectRepository {
   async getAllSubjects(): Promise<TSubject[] | null> {
     return prismaClient.subject.findMany({});
   }
+
+  async findSubjectById(id: string): Promise<TSubject | null> {
+    return prismaClient.subject.findUnique({
+      where: {
+        id,
+      },
+    });
+  }
 }
 
 export default new SubjectRepository();

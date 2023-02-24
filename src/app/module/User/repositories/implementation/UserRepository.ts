@@ -74,6 +74,15 @@ class UserRepository implements IUserRepository {
       },
     });
   }
+
+  async findAdmins(organizationId: string): Promise<TUser | null> {
+    return prismaClient.infosUser.findFirst({
+      where: {
+        organizationId,
+        type: 'admin',
+      },
+    });
+  }
 }
 
 export default new UserRepository();

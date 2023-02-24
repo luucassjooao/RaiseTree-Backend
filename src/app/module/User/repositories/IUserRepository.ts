@@ -25,4 +25,5 @@ export interface IUserRepository {
   findName(name: string): Promise<TUser | null>;
   findCode(code: string): Promise<TUser | null>;
   findId(id: string): Promise<TRequestUser>;
+  findAdmins(organizationId: string): Promise<TUser | null>
 }
