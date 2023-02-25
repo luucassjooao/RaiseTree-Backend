@@ -29,6 +29,17 @@ class NotifyRepository implements INotifyRepository {
       },
     });
   }
+
+  async updateReadNotification(notificationId: string): Promise<TNotify> {
+    return prismaClient.notify.update({
+      where: {
+        id: notificationId,
+      },
+      data: {
+        read: true,
+      },
+    });
+  }
 }
 
 export default new NotifyRepository();

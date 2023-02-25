@@ -9,4 +9,5 @@ export interface INotifyRepository {
   ): Promise<TNotify>;
   countLenghtNotificationsByUserNotRead(userId: string): Promise<number | null>;
   getAllNotifications(userId: string): Promise<TNotify[] | null>;
+  updateReadNotification(notificationId: string): Promise<TNotify>;
 }

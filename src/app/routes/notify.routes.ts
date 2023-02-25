@@ -6,5 +6,6 @@ const notifyRouter = Router();
 
 notifyRouter.get('/getCountNotifications', auth, NotifyController.countLenghtNotificationsByUserNotRead);
 notifyRouter.get('/getAllNotifications', auth, NotifyController.getAllNotifications);
+notifyRouter.patch('/markAllNotificationAsRead', auth, NotifyController.markNotificationAsRead);
 
 export default notifyRouter;
