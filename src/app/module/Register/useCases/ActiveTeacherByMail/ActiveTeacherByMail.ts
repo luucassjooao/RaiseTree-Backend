@@ -1,15 +1,14 @@
 import { hash } from 'bcrypt';
 import { verify } from 'jsonwebtoken';
 import AppError from '../../../../error';
+import prismaClient from '../../../../prisma';
 import { TTeacher } from '../../../../prisma/teacher';
 import { TDecodedToken } from '../../../../utils/generateTokens';
 import { SendMailForTeacher } from '../../../../utils/types';
 import NotifyRepository from '../../../Notify/repositories/implementation/NotifyRepository';
 import StaticUserRepository from '../../../StaticUser/repositories/implementation/StaticUserRepository';
 import SubjectRepository from '../../../Subject/repositories/implementation/SubjectRepository';
-import CreateTeacher from '../../../Teacher/useCases/CreateTeacher';
 import UserRepository from '../../../User/repositories/implementation/UserRepository';
-import CreateUser from '../../../User/useCases/CreateUser';
 
 export default async function ActiveTeacherByMail(
   token: string,
@@ -37,28 +36,43 @@ export default async function ActiveTeacherByMail(
 
   const findTeacherOnStaticUser = await StaticUserRepository.findCode(code);
   if (!findTeacherOnStaticUser) throw new AppError('Ouve algum error! Verifique com o coordenador!');
-  await StaticUserRepository.deleteById(findTeacherOnStaticUser.id);
 
   const hashedPassword = await hash(password, 10);
 
-  const createUser = await CreateUser({
-    organizationId,
-    code,
-    name,
-    email,
-    password: hashedPassword,
-    type: 'teacher',
-  });
-
-  const createdTeacher = await CreateTeacher(classroom, subjectId, createUser.id);
-
   const findAdmins = await UserRepository.findAdmins(organizationId);
 
-  await NotifyRepository.store(
-    `O professor(a) ${name}, acabou de se registrar!`,
-    `Ele(a) se registrou na máteria: ${findSubjectName.name}`,
-    findAdmins?.id as string,
-  );
+  return prismaClient.$transaction(async (prisma) => {
+    const createUser = await prisma.infosUser.create({
+      data: {
+        organizationId,
+        code,
+        name,
+        email,
+        password: hashedPassword,
+        type: 'teacher',
+      },
+    });
 
-  return createdTeacher;
+    const createTeacher = await prisma.teacher.create({
+      data: {
+        classrooms: classroom,
+        subjectId,
+        userId: createUser.id,
+      },
+    });
+
+    await prisma.staticUser.delete({
+      where: {
+        id: findTeacherOnStaticUser.id,
+      },
+    });
+
+    await NotifyRepository.store(
+      `O professor(a) ${name}, acabou de se registrar!`,
+      `Ele(a) se registrou na máteria: ${findSubjectName?.name}`,
+      findAdmins?.id as string,
+    );
+
+    return createTeacher;
+  });
 }

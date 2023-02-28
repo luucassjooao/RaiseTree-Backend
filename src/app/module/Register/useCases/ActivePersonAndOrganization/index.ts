@@ -1,19 +1,14 @@
 import { randomUUID } from 'crypto';
 import { verify } from 'jsonwebtoken';
 import AppError from '../../../../error';
-import { TUser } from '../../../../prisma/infosUser';
+import prismaClient from '../../../../prisma';
 import { TDecodedToken } from '../../../../utils/generateTokens';
 import NotifyRepository from '../../../Notify/repositories/implementation/NotifyRepository';
-import CreateOrganization from '../../../Organization/useCases/CreateOrganization';
-import StaticUserRepository from '../../../StaticUser/repositories/implementation/StaticUserRepository';
-import CreateStudent from '../../../Student/useCases/CreateStudent';
 import SubjectRepository from '../../../Subject/repositories/implementation/SubjectRepository';
-import CreateTeacher from '../../../Teacher/useCases/CreateTeacher';
 import UserRepository from '../../../User/repositories/implementation/UserRepository';
-import CreateUser from '../../../User/useCases/CreateUser';
 import { TInfosToken } from '../SendMailForRegister';
 
-export default async function ActivePersonAndOrganization(token: string): Promise<TUser> {
+export default async function ActivePersonAndOrganization(token: string) {
   const decodedToken = <TDecodedToken<TInfosToken>>(
     verify(token, `${process.env.ACTIVE_TOKEN_SECRET}`)
     );
@@ -38,56 +33,106 @@ export default async function ActivePersonAndOrganization(token: string): Promis
   } = infosToken as TInfosToken;
 
   if (firstContact) {
-    const createOrganization = await CreateOrganization(
-      organizationName,
-      organizationClassrooms,
-    );
+    return prismaClient.$transaction(async (prisma) => {
+      const createOrganization = await prisma.organization.create({
+        data: {
+          name: organizationName,
+          classrooms: organizationClassrooms,
+        },
+      });
 
-    const createAdmin = await CreateUser({
-      organizationId: createOrganization.id,
-      name,
-      code: randomUUID(),
-      email,
-      password,
-      type: 'admin',
+      const createAdmin = await prisma.infosUser.create({
+        data: {
+          organizationId: createOrganization.id,
+          name,
+          code: randomUUID(),
+          email,
+          password,
+          type: 'admin',
+        },
+      });
+
+      await prisma.teacher.create({
+        data: {
+          classrooms: createOrganization.classrooms,
+          subjectId,
+          userId: createAdmin.id,
+        },
+      });
+
+      return createAdmin;
     });
-
-    await CreateTeacher(createOrganization.classrooms, subjectId, createAdmin.id);
-
-    return createAdmin;
   }
-
-  const createUser = await CreateUser({
-    organizationId,
-    code,
-    name,
-    email,
-    password,
-    type,
-  });
 
   const findAdmins = await UserRepository.findAdmins(organizationId);
   const findSubjectName = await SubjectRepository.findSubjectById(subjectId);
 
   if (type === 'teacher') {
-    await CreateTeacher(personClassroom as string[], subjectId, createUser.id);
+    return prismaClient.$transaction(async (prisma) => {
+      const createUser = await prisma.infosUser.create({
+        data: {
+          organizationId,
+          code,
+          name,
+          email,
+          password,
+          type,
+        },
+      });
 
-    await NotifyRepository.store(
-      `O professor(a) ${name}, acabou de se registrar!`,
-      `Ele(a) se registrou na máteria: ${findSubjectName?.name}`,
-      findAdmins?.id as string,
-    );
-  } if (type === 'student') {
-    await CreateStudent(personClassroom as string, createUser.id);
+      await prisma.teacher.create({
+        data: {
+          classrooms: personClassroom,
+          subjectId,
+          userId: createUser.id,
+        },
+      });
+
+      await prisma.staticUser.delete({
+        where: {
+          id: personStaticUserId,
+        },
+      });
+
+      await NotifyRepository.store(
+        `O professor(a) ${name}, acabou de se registrar!`,
+        `Ele(a) se registrou na máteria: ${findSubjectName?.name}`,
+        findAdmins?.id as string,
+      );
+
+      return createUser;
+    });
+  }
+  return prismaClient.$transaction(async (prisma) => {
+    const createUser = await prisma.infosUser.create({
+      data: {
+        organizationId,
+        code,
+        name,
+        email,
+        password,
+        type,
+      },
+    });
+
+    await prisma.student.create({
+      data: {
+        classroom: personClassroom as string,
+        userId: createUser.id,
+      },
+    });
+
+    await prisma.staticUser.delete({
+      where: {
+        id: personStaticUserId,
+      },
+    });
 
     await NotifyRepository.store(
       `O aluno(a) ${name}, acabou de se registrar!`,
       `Ele(a) se registrou, e está na sala ${personClassroom}`,
-      findAdmins?.id as string,
+        findAdmins?.id as string,
     );
-  }
-
-  await StaticUserRepository.deleteById(personStaticUserId);
-
-  return createUser;
+    return createUser;
+  });
 }

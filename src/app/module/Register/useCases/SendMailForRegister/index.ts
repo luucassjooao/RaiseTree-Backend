@@ -62,14 +62,12 @@ export default async function SendMailForRegister(
     const activeToken = generateActiveToken({ infosToken });
     const url = `${process.env.BASE_URL}/active?token=${activeToken}`;
 
-    const sendEmail = sendMail({
+    return sendMail({
       text: 'Clique aqui para ativar sua conta!',
       to: email,
       typeTemplate: 'sendMailForFirstTime',
       url,
     });
-
-    return sendEmail;
   }
 
   if (type === 'teacher' && !isValidUUID(code)) throw new AppError('O formato do seu código é invalido!');
